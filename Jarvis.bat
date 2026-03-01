@@ -8,9 +8,6 @@ if not exist "venv\Scripts\activate.bat" (
     exit
 )
 
-REM Limpa variavel de ambiente antiga para usar a do .env
-set GOOGLE_API_KEY=
-
 echo Ativando ambiente virtual...
 call venv\Scripts\activate
 
