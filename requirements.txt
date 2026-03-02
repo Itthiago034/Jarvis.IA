@@ -6,3 +6,21 @@ livekit-plugins-silero
 livekit-plugins-noise-cancellation
 requests
 python-dotenv
+mem0ai
+
+# ============== AUTOMAÇÃO (Braços) ==============
+pyautogui          # Controle de mouse e teclado
+keyboard           # Hotkeys e detecção de teclas
+mouse              # Controle avançado do mouse
+
+# ============== VISÃO (Olhos) ==============
+opencv-python      # Reconhecimento de imagem na tela
+pillow             # Captura e manipulação de screenshots
+pygetwindow        # Gerenciamento de janelas
+
+# ============== SISTEMA (Sistema Nervoso) ==============
+psutil             # Monitoramento de CPU, RAM, processos
+selenium           # Automação web avançada
+
+# ============== WEB & PRODUTIVIDADE ==============
+aiohttp            # Requisições HTTP assíncronas (busca web, APIs)
