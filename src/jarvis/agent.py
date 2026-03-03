@@ -2,11 +2,15 @@ from dotenv import load_dotenv
 from livekit import agents
 from livekit.agents import AgentSession, Agent, RoomInputOptions, ChatContext
 from livekit.plugins import noise_cancellation, google
-from prompts import AGENT_INSTRUCTION, SESSION_INSTRUCTION
+from .prompts import AGENT_INSTRUCTION, SESSION_INSTRUCTION
 from mem0 import AsyncMemoryClient
 import logging
 import os
 import json
+from pathlib import Path
+
+# Define o diretório raiz do projeto
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 load_dotenv()
 

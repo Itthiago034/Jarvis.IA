@@ -1,8 +1,37 @@
-livekit-agents
-livekit-plugins-openai
-livekit-plugins-google
-livekit-plugins-deepgram
-livekit-plugins-silero
-livekit-plugins-noise-cancellation
-requests
-python-dotenv
+# ============================================
+# JARVIS - Dependências do Projeto
+# ============================================
+# Instale com: pip install -r requirements.txt
+# ============================================
+
+# --- LiveKit (Comunicação em Tempo Real) ---
+livekit-agents>=0.8.0
+livekit-plugins-openai>=0.8.0
+livekit-plugins-google>=0.8.0
+livekit-plugins-deepgram>=0.8.0
+livekit-plugins-silero>=0.8.0
+livekit-plugins-noise-cancellation>=0.2.0
+
+# --- Memória Persistente ---
+mem0ai>=0.1.0
+
+# --- Utilitários ---
+python-dotenv>=1.0.0
+requests>=2.31.0
+aiohttp>=3.9.0
+pyyaml>=6.0.0
+
+# --- Sistema (Monitoramento) ---
+psutil>=5.9.0
+
+# --- Google ADK (SubAgent de Programação) ---
+# Necessário para o CodeAssistant plugin
+google-adk>=1.26.0
+mcp>=1.0.0
+
+# --- Desenvolvimento (Opcional) ---
+# Descomente para ferramentas de desenvolvimento
+# pytest>=8.0.0
+# pytest-asyncio>=0.23.0
+# ruff>=0.3.0
+# black>=24.0.0

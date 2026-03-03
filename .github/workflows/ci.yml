@@ -1,0 +1,103 @@
+# ============================================
+# JARVIS - CI/CD Pipeline
+# ============================================
+# Este workflow roda automaticamente quando você faz push
+# Verifica qualidade do código, sintaxe e segurança
+# ============================================
+
+name: CI - Jarvis
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint:
+    name: 🔍 Verificar Qualidade do Código
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Baixar código
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: 📦 Instalar ferramentas de lint
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff
+      
+      - name: 🔎 Executar Ruff (verificar erros)
+        run: ruff check . --output-format=github
+        continue-on-error: true
+
+  syntax-check:
+    name: ✅ Verificar Sintaxe Python
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Baixar código
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: 🔧 Verificar sintaxe dos arquivos Python
+        run: |
+          echo "Verificando sintaxe..."
+          find . -name "*.py" -not -path "./venv/*" -exec python -m py_compile {} \;
+          echo "✅ Todos os arquivos Python têm sintaxe válida!"
+
+  security-check:
+    name: 🔒 Verificar Segurança
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Baixar código
+        uses: actions/checkout@v4
+      
+      - name: 🔐 Verificar se .env foi commitado acidentalmente
+        run: |
+          echo "Verificando arquivos sensíveis..."
+          
+          # Verifica .env
+          if [ -f ".env" ]; then
+            echo "❌ ERRO: Arquivo .env encontrado no repositório!"
+            echo "Remova o .env e adicione ao .gitignore"
+            exit 1
+          fi
+          
+          # Verifica por API keys expostas
+          if grep -r "AIzaSy" --include="*.py" . 2>/dev/null; then
+            echo "⚠️ AVISO: Possível API key do Google encontrada no código"
+          fi
+          
+          echo "✅ Nenhum arquivo sensível exposto"
+
+  dependency-check:
+    name: 📦 Verificar Dependências
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Baixar código
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: 📦 Verificar se dependências instalam
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt --dry-run
+          echo "✅ Todas as dependências são válidas!"

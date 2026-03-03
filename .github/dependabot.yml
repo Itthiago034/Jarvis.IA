@@ -1,0 +1,54 @@
+# ============================================
+# DEPENDABOT - Atualização Automática de Dependências
+# ============================================
+# O Dependabot verifica semanalmente se há atualizações
+# de segurança nas suas dependências Python.
+# ============================================
+
+version: 2
+
+updates:
+  # Dependências Python (pip)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    
+    # Limite de PRs abertos ao mesmo tempo
+    open-pull-requests-limit: 5
+    
+    # Labels automáticos nos PRs
+    labels:
+      - "dependencies"
+      - "automated"
+    
+    # Commit messages em português
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    
+    # Agrupa atualizações menores
+    groups:
+      livekit:
+        patterns:
+          - "livekit*"
+      google:
+        patterns:
+          - "google*"
+      development:
+        patterns:
+          - "pytest*"
+          - "ruff*"
+          - "black*"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "ci"
+      - "automated"

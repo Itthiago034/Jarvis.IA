@@ -15,6 +15,6 @@ echo ----------------------------
 echo Iniciando Jarvis em modo DEV
 echo ----------------------------
 
-python agent.py dev
+python run.py dev
 
 pause

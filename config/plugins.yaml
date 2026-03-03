@@ -1,0 +1,74 @@
+# ============================================
+# JARVIS - Configuração de Plugins
+# ============================================
+# Este arquivo controla quais plugins estão ativos
+# e suas configurações individuais.
+# ============================================
+
+# Habilita/desabilita o sistema de plugins globalmente
+enabled: true
+
+# Configuração individual de cada plugin
+plugins:
+  
+  # Plugin de Clima (OpenWeatherMap)
+  WeatherPlugin:
+    enabled: true
+    config:
+      # Obtenha sua API key em: https://openweathermap.org/api
+      # É gratuita para até 1000 chamadas/dia
+      api_key: ""  # Deixe vazio para modo demo
+      default_city: "São Paulo"
+      units: "metric"  # metric (Celsius) ou imperial (Fahrenheit)
+  
+  # Plugin do Spotify
+  SpotifyPlugin:
+    enabled: true
+    config: {}
+  
+  # Plugin de Sistema (bateria, CPU, RAM)
+  SystemPlugin:
+    enabled: true
+    config: {}
+  
+  # Plugin de Data e Hora
+  DateTimePlugin:
+    enabled: true
+    config: {}
+  
+  # Plugin de Aplicativos
+  AppsPlugin:
+    enabled: true
+    config:
+      # Adicione aplicativos personalizados aqui
+      custom_apps: {}
+  
+  # Plugin Code Assistant (Engenheiro de Software)
+  CodeAssistantPlugin:
+    enabled: true
+    config:
+      # Caminho do workspace (padrão: raiz do projeto JARVIS)
+      workspace_path: ""  # Deixe vazio para usar padrão
+      # Modelo Gemini a usar
+      model: "gemini-2.5-flash"  # ou "gemini-2.5-pro" para tarefas complexas
+      # Habilitar integração com GitHub (requer GITHUB_TOKEN no .env)
+      enable_github: false
+
+
+# ============================================
+# GUIA DE CONFIGURAÇÃO
+# ============================================
+#
+# Para adicionar uma API key do OpenWeatherMap:
+# 1. Acesse: https://openweathermap.org/api
+# 2. Crie uma conta gratuita
+# 3. Gere uma API key
+# 4. Cole acima em WeatherPlugin > config > api_key
+#
+# Para desabilitar um plugin:
+# - Mude 'enabled: true' para 'enabled: false'
+#
+# Para desabilitar TODOS os plugins:
+# - Mude 'enabled: true' no topo para 'enabled: false'
+#
+# ============================================
