@@ -37,16 +37,16 @@ from enum import Enum
 
 # Tenta importar ADK - se não estiver instalado, usa modo fallback
 try:
-    from google.adk.agents import LlmAgent
-    from google.adk.tools.mcp_tool import McpToolset
-    from google.adk.tools.mcp_tool.mcp_session_manager import (
+    from google.adk.agents import LlmAgent  # type: ignore
+    from google.adk.tools.mcp_tool import McpToolset  # type: ignore
+    from google.adk.tools.mcp_tool.mcp_session_manager import (  # type: ignore
         StdioConnectionParams,
         StreamableHTTPServerParams
     )
-    from google.adk.code_executors import BuiltInCodeExecutor
-    from google.adk.runners import Runner
-    from google.adk.sessions import InMemorySessionService
-    from mcp import StdioServerParameters
+    from google.adk.code_executors import BuiltInCodeExecutor  # type: ignore
+    from google.adk.runners import Runner  # type: ignore
+    from google.adk.sessions import InMemorySessionService  # type: ignore
+    from mcp import StdioServerParameters  # type: ignore
     ADK_AVAILABLE = True
 except ImportError:
     ADK_AVAILABLE = False
@@ -308,7 +308,7 @@ class CodeAgent:
         
         # ===== FERRAMENTAS CUSTOMIZADAS (sem dependência externa) =====
         try:
-            from google.adk.tools import FunctionTool
+            from google.adk.tools import FunctionTool  # type: ignore
             from ..tools.terminal import run_command_sync, is_safe_command
             from ..tools.search import grep_search, file_search, list_directory
             from ..tools.web import fetch_webpage_sync, search_documentation

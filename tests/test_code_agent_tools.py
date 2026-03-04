@@ -18,7 +18,7 @@ def test_code_analysis():
     print("🔍 TESTE: Análise de Código")
     print("="*60)
     
-    from jarvis.tools.code_analysis import (
+    from jarvis.tools.code_analysis import (  # type: ignore
         get_syntax_errors,
         find_symbol_usages,
         count_code_metrics
@@ -62,7 +62,7 @@ def test_git_tools():
     print("📊 TESTE: Git Tools")
     print("="*60)
     
-    from jarvis.tools.git_tools import (
+    from jarvis.tools.git_tools import (  # type: ignore
         is_git_repository,
         get_repository_status,
         get_current_branch,
@@ -103,7 +103,7 @@ def test_refactoring():
     print("🔧 TESTE: Refatoração")
     print("="*60)
     
-    from jarvis.tools.refactoring import (
+    from jarvis.tools.refactoring import (  # type: ignore
         organize_imports,
         generate_docstring,
         rename_symbol
@@ -168,7 +168,7 @@ def test_diagram_generation():
     print("📐 TESTE: Geração de Diagramas")
     print("="*60)
     
-    from jarvis.tools.diagram_tools import (
+    from jarvis.tools.diagram_tools import (  # type: ignore
         generate_flowchart,
         add_flowchart_connections,
         generate_class_diagram_from_file,
@@ -245,9 +245,9 @@ def test_complex_task():
     print("🎯 TAREFA COMPLEXA: Análise Completa de Arquivo")
     print("="*60)
     
-    from jarvis.tools.code_analysis import get_python_errors, count_code_metrics, find_symbol_usages
-    from jarvis.tools.diagram_tools import generate_class_diagram_from_file
-    from jarvis.tools.refactoring import generate_docstring
+    from jarvis.tools.code_analysis import get_python_errors, count_code_metrics, find_symbol_usages  # type: ignore
+    from jarvis.tools.diagram_tools import generate_class_diagram_from_file  # type: ignore
+    from jarvis.tools.refactoring import generate_docstring  # type: ignore
     
     target_file = Path(__file__).parent.parent / "src" / "jarvis" / "agent.py"
     workspace = str(Path(__file__).parent.parent / "src")

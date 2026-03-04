@@ -2,8 +2,8 @@
 import sys
 sys.path.insert(0, 'src')
 from pathlib import Path
-from jarvis.tools.code_analysis import get_python_errors, count_code_metrics, find_symbol_usages
-from jarvis.tools.diagram_tools import generate_class_diagram_from_file
+from jarvis.tools.code_analysis import get_python_errors, count_code_metrics, find_symbol_usages  # type: ignore
+from jarvis.tools.diagram_tools import generate_class_diagram_from_file  # type: ignore
 
 target_file = 'src/jarvis/agent.py'
 workspace = 'src'
