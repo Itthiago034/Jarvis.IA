@@ -1,4 +1,4 @@
-import pyautogui
+import pyautogui  # type: ignore[reportMissingModuleSource]
 import time
 from pathlib import Path
 

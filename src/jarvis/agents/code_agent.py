@@ -98,7 +98,7 @@ parte integrante do sistema JARVIS. Você possui expertise em:
 - Testes automatizados (unit, integration, e2e)
 
 # Ferramentas Disponíveis
-Você tem acesso a **32 ferramentas** organizadas em 8 categorias:
+Você tem acesso a **50+ ferramentas** organizadas em 15 categorias:
 
 ## 1. 🖥️ Terminal (execute_terminal_command)
 Executa comandos no sistema:
@@ -116,9 +116,11 @@ Executa comandos no sistema:
 - **write_file**: Escreve/cria arquivos
 - **directory_tree**: Visualiza estrutura do projeto
 
-## 4. 🌐 Web/Documentação (fetch_web_page, get_documentation_urls)
+## 4. 🌐 Web/Documentação (fetch_web_page, search_stackoverflow, web_search)
 - Buscar documentação oficial online
-- Ler APIs e exemplos da web
+- Pesquisar soluções no Stack Overflow
+- Buscar na web com DuckDuckGo
+- Obter info de pacotes (npm, PyPI)
 
 ## 5. 🐛 Análise de Código (check_code_errors, find_usages, get_code_metrics)
 - **check_code_errors**: Erros de sintaxe e linting (pylint)
@@ -141,12 +143,53 @@ Executa comandos no sistema:
 - **notebook_to_python**: Converter para script .py
 
 ## 8. 📐 Diagramas (create_*_diagram, save_mermaid_diagram)
-- **create_flowchart**: Diagrama de fluxo
-- **create_sequence_diagram**: Diagrama de sequência
-- **create_class_diagram**: Diagrama de classes (manual)
 - **create_class_diagram_auto**: Diagrama de classes (automático de arquivo)
-- **create_architecture_diagram**: Diagrama de arquitetura
 - **save_mermaid_diagram**: Salvar diagrama em arquivo
+
+## 9. 🐙 GitHub (github_*)
+- **github_list_issues**: Listar issues de um repositório
+- **github_create_issue**: Criar nova issue
+- **github_list_prs**: Listar pull requests
+- **github_get_pr_diff**: Diff de um PR
+- **github_search_code**: Buscar código no GitHub
+- **github_workflow_status**: Status do GitHub Actions
+
+## 10. 🔬 Pesquisa (search_*, web_*)
+- **search_stackoverflow**: Buscar no Stack Overflow
+- **get_stackoverflow_solution**: Obter solução melhor avaliada
+- **web_search**: Buscar na web
+- **get_package_info**: Info de pacotes npm/PyPI
+
+## 11. 🖥️ Sistema Windows (system_*)
+- **system_status**: CPU, memória, disco
+- **list_processes**: Processos rodando
+- **kill_process**: Encerrar processo
+- **open_app**: Abrir aplicativo
+- **get_clipboard / set_clipboard**: Área de transferência
+
+## 12. 👁️ Visão/IA (vision_*)
+- **screenshot_analyze**: Capturar e analisar tela
+- **analyze_image**: Analisar imagem com Gemini
+- **extract_text**: OCR em imagens
+- **design_to_code**: Converter design para código
+
+## 13. 🐳 Docker (docker_*)
+- **docker_list_containers**: Listar containers
+- **docker_start / docker_stop**: Iniciar/parar container
+- **docker_logs**: Ver logs
+- **docker_compose_up / docker_compose_down**: Docker Compose
+- **docker_cleanup**: Limpar imagens não usadas
+
+## 14. 🗄️ Banco de Dados (db_*)
+- **sqlite_query / sqlite_schema**: SQLite queries
+- **postgres_query**: PostgreSQL queries
+- **mongodb_query**: MongoDB queries
+- **natural_to_sql**: Converter texto para SQL
+
+## 15. 📁 Scaffolding (project_*)
+- **list_project_templates**: Listar templates disponíveis
+- **create_project**: Criar projeto (FastAPI, React, Django, etc)
+- **add_file_to_project**: Adicionar arquivo a projeto
 
 ## 9. 🔧 Refatoração (refactor_*)
 - **refactor_extract_function**: Extrair código para função
@@ -230,14 +273,14 @@ class CodeAgent:
     Attributes:
         workspace_path: Caminho base do workspace para operações de arquivo
         enable_github: Se True, habilita integração com GitHub
-        model: Modelo Gemini a usar (padrão: gemini-2.5-flash)
+        model: Modelo Gemini a usar (padrão: gemini-2.5-pro)
     """
     
     def __init__(
         self,
         workspace_path: Optional[str] = None,
         enable_github: bool = False,
-        model: str = "gemini-2.5-flash"
+        model: str = "gemini-2.5-pro"
     ):
         """
         Inicializa o CodeAgent.
@@ -277,12 +320,14 @@ class CodeAgent:
             tools = await self._setup_tools()
             
             # Criar agente
+            # Nota: code_executor (BuiltInCodeExecutor) não pode ser usado junto com
+            # custom tools (Function Calling). Remova code_executor para usar as ferramentas.
             self._agent = LlmAgent(
                 name="code_engineer",
                 model=self.model,
                 instruction=CODE_AGENT_INSTRUCTION,
                 description="Engenheiro de Software Sênior para programação",
-                code_executor=BuiltInCodeExecutor(),
+                # code_executor=BuiltInCodeExecutor(),  # Incompatível com custom tools
                 tools=tools,
             )
             
@@ -593,14 +638,9 @@ class CodeAgent:
                 FunctionTool(notebook_add_cell),
                 FunctionTool(notebook_to_python),
                 # Diagrams
-                FunctionTool(create_flowchart),
-                FunctionTool(create_sequence_diagram),
-                FunctionTool(create_class_diagram),
                 FunctionTool(create_class_diagram_auto),
-                FunctionTool(create_architecture_diagram),
                 FunctionTool(save_mermaid_diagram),
                 # Refactoring
-                FunctionTool(refactor_extract_function),
                 FunctionTool(refactor_rename),
                 FunctionTool(refactor_organize_imports),
                 FunctionTool(refactor_generate_docstring),
@@ -609,6 +649,11 @@ class CodeAgent:
             ]
             tools.extend(custom_tools)
             logger.info(f"🔧 Custom tools carregadas: {len(custom_tools)} ferramentas")
+            
+            # ========== FERRAMENTAS EXPANDIDAS (v2) ==========
+            expanded_tools = await self._setup_expanded_tools()
+            tools.extend(expanded_tools)
+            logger.info(f"🚀 Expanded tools carregadas: {len(expanded_tools)} ferramentas")
             
         except ImportError as e:
             logger.warning(f"Algumas tools customizadas não disponíveis: {e}")
@@ -669,6 +714,325 @@ class CodeAgent:
         
         logger.info(f"Total de ferramentas configuradas: {len(tools)}")
         return tools
+    
+    async def _setup_expanded_tools(self) -> list:
+        """Configura ferramentas expandidas v2 (GitHub, Research, System, Vision, Docker, DB, Scaffolding)"""
+        from google.adk.tools import FunctionTool  # type: ignore
+        tools = []
+        
+        # ========== GITHUB TOOLS ==========
+        try:
+            from ..tools.github_tools import get_github_tools
+            github_tools = get_github_tools()
+            
+            def github_list_issues(owner: str, repo: str, state: str = "open", limit: int = 10) -> str:
+                """Lista issues de um repositório GitHub."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(github_tools["github_list_issues"](owner, repo, state, limit))
+            
+            def github_create_issue(owner: str, repo: str, title: str, body: str = "") -> str:
+                """Cria uma nova issue no GitHub."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(github_tools["github_create_issue"](owner, repo, title, body))
+            
+            def github_list_prs(owner: str, repo: str, state: str = "open", limit: int = 10) -> str:
+                """Lista pull requests de um repositório."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(github_tools["github_list_prs"](owner, repo, state, limit))
+            
+            def github_get_pr_diff(owner: str, repo: str, pr_number: int) -> str:
+                """Obtém o diff de um pull request."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(github_tools["github_get_pr_diff"](owner, repo, pr_number))
+            
+            def github_search_code(query: str, owner: str = None, repo: str = None) -> str:
+                """Busca código no GitHub."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(github_tools["github_search_code"](query, owner, repo))
+            
+            def github_workflow_status(owner: str, repo: str) -> str:
+                """Status dos workflows do GitHub Actions."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(github_tools["github_workflow_status"](owner, repo))
+            
+            tools.extend([
+                FunctionTool(github_list_issues),
+                FunctionTool(github_create_issue),
+                FunctionTool(github_list_prs),
+                FunctionTool(github_get_pr_diff),
+                FunctionTool(github_search_code),
+                FunctionTool(github_workflow_status),
+            ])
+            logger.info("✅ GitHub tools carregadas")
+        except ImportError as e:
+            logger.warning(f"GitHub tools não disponíveis: {e}")
+        
+        # ========== RESEARCH TOOLS ==========
+        try:
+            from ..tools.research_tools import get_research_tools
+            research_tools = get_research_tools()
+            
+            def search_stackoverflow(query: str, limit: int = 5) -> str:
+                """Busca no Stack Overflow."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(research_tools["search_stackoverflow"](query, limit))
+            
+            def get_stackoverflow_solution(question_id: int) -> str:
+                """Obtém a melhor resposta de uma pergunta do Stack Overflow."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(research_tools["get_stackoverflow_solution"](question_id))
+            
+            def web_search(query: str, limit: int = 5) -> str:
+                """Busca na web usando DuckDuckGo."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(research_tools["web_search"](query, limit))
+            
+            def get_package_info(name: str, registry: str = "pypi") -> str:
+                """Info de um pacote (pypi ou npm)."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(research_tools["get_package_info"](name, registry))
+            
+            tools.extend([
+                FunctionTool(search_stackoverflow),
+                FunctionTool(get_stackoverflow_solution),
+                FunctionTool(web_search),
+                FunctionTool(get_package_info),
+            ])
+            logger.info("✅ Research tools carregadas")
+        except ImportError as e:
+            logger.warning(f"Research tools não disponíveis: {e}")
+        
+        # ========== SYSTEM TOOLS ==========
+        try:
+            from ..tools.system_tools import get_system_tools
+            system_tools = get_system_tools()
+            
+            def system_status() -> str:
+                """Status do sistema (CPU, memória, disco)."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(system_tools["system_status"]())
+            
+            def list_processes(filter_name: str = None) -> str:
+                """Lista processos do sistema."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(system_tools["list_processes"](filter_name))
+            
+            def kill_process(pid: int) -> str:
+                """Encerra um processo pelo PID."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(system_tools["kill_process"](pid))
+            
+            def open_app(app_name: str) -> str:
+                """Abre um aplicativo."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(system_tools["open_app"](app_name))
+            
+            def get_clipboard() -> str:
+                """Obtém conteúdo da área de transferência."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(system_tools["get_clipboard"]())
+            
+            def set_clipboard(text: str) -> str:
+                """Define conteúdo da área de transferência."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(system_tools["set_clipboard"](text))
+            
+            tools.extend([
+                FunctionTool(system_status),
+                FunctionTool(list_processes),
+                FunctionTool(kill_process),
+                FunctionTool(open_app),
+                FunctionTool(get_clipboard),
+                FunctionTool(set_clipboard),
+            ])
+            logger.info("✅ System tools carregadas")
+        except ImportError as e:
+            logger.warning(f"System tools não disponíveis: {e}")
+        
+        # ========== VISION TOOLS ==========
+        try:
+            from ..tools.vision_tools import get_vision_tools
+            vision_tools = get_vision_tools()
+            
+            def screenshot_analyze(prompt: str = "Descreva o que você vê") -> str:
+                """Captura a tela e analisa com IA."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(vision_tools["screenshot_analyze"](prompt))
+            
+            def analyze_image(image_path: str, prompt: str = "Analise esta imagem") -> str:
+                """Analisa uma imagem com Gemini."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(vision_tools["analyze_image"](image_path, prompt))
+            
+            def extract_text_from_image(image_path: str) -> str:
+                """Extrai texto de uma imagem (OCR)."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(vision_tools["extract_text"](image_path))
+            
+            def design_to_code(image_path: str, framework: str = "html") -> str:
+                """Converte design/mockup para código."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(vision_tools["design_to_code"](image_path, framework))
+            
+            tools.extend([
+                FunctionTool(screenshot_analyze),
+                FunctionTool(analyze_image),
+                FunctionTool(extract_text_from_image),
+                FunctionTool(design_to_code),
+            ])
+            logger.info("✅ Vision tools carregadas")
+        except ImportError as e:
+            logger.warning(f"Vision tools não disponíveis: {e}")
+        
+        # ========== DOCKER TOOLS ==========
+        try:
+            from ..tools.docker_tools import get_docker_tools
+            docker_tools = get_docker_tools()
+            
+            def docker_list_containers(all: bool = False) -> str:
+                """Lista containers Docker."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(docker_tools["docker_list_containers"](all))
+            
+            def docker_start(container: str) -> str:
+                """Inicia um container."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(docker_tools["docker_start"](container))
+            
+            def docker_stop(container: str) -> str:
+                """Para um container."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(docker_tools["docker_stop"](container))
+            
+            def docker_logs(container: str, lines: int = 100) -> str:
+                """Mostra logs de um container."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(docker_tools["docker_logs"](container, lines))
+            
+            def docker_compose_up(path: str = ".", detach: bool = True) -> str:
+                """Inicia serviços do docker-compose."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(docker_tools["docker_compose_up"](path, detach))
+            
+            def docker_compose_down(path: str = ".") -> str:
+                """Para serviços do docker-compose."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(docker_tools["docker_compose_down"](path))
+            
+            def docker_cleanup() -> str:
+                """Remove imagens e containers não usados."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(docker_tools["docker_cleanup"]())
+            
+            tools.extend([
+                FunctionTool(docker_list_containers),
+                FunctionTool(docker_start),
+                FunctionTool(docker_stop),
+                FunctionTool(docker_logs),
+                FunctionTool(docker_compose_up),
+                FunctionTool(docker_compose_down),
+                FunctionTool(docker_cleanup),
+            ])
+            logger.info("✅ Docker tools carregadas")
+        except ImportError as e:
+            logger.warning(f"Docker tools não disponíveis: {e}")
+        
+        # ========== DATABASE TOOLS ==========
+        try:
+            from ..tools.database_tools import get_database_tools
+            db_tools = get_database_tools()
+            
+            def sqlite_query(db_path: str, query: str) -> str:
+                """Executa query SQLite."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(db_tools["sqlite_query"](db_path, query))
+            
+            def sqlite_schema(db_path: str) -> str:
+                """Obtém schema de um banco SQLite."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(db_tools["sqlite_schema"](db_path))
+            
+            def postgres_query(connection_string: str, query: str) -> str:
+                """Executa query PostgreSQL."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(db_tools["postgres_query"](connection_string, query))
+            
+            def mongodb_query(connection_string: str, database: str, collection: str, query: str = "{}") -> str:
+                """Executa query MongoDB."""
+                import asyncio
+                loop = asyncio.get_event_loop()
+                return loop.run_until_complete(db_tools["mongodb_query"](connection_string, database, collection, query))
+            
+            def natural_to_sql(description: str, table_schema: str = "") -> str:
+                """Converte descrição em linguagem natural para SQL."""
+                return db_tools["natural_to_sql"](description, table_schema)
+            
+            tools.extend([
+                FunctionTool(sqlite_query),
+                FunctionTool(sqlite_schema),
+                FunctionTool(postgres_query),
+                FunctionTool(mongodb_query),
+                FunctionTool(natural_to_sql),
+            ])
+            logger.info("✅ Database tools carregadas")
+        except ImportError as e:
+            logger.warning(f"Database tools não disponíveis: {e}")
+        
+        # ========== SCAFFOLDING TOOLS ==========
+        try:
+            from ..tools.scaffolding_tools import get_scaffolding_tools
+            scaffolding = get_scaffolding_tools()
+            
+            def list_project_templates() -> str:
+                """Lista templates de projeto disponíveis."""
+                return scaffolding["list_project_templates"]()
+            
+            def create_project(template: str, name: str, output_dir: str = ".", description: str = "") -> str:
+                """Cria novo projeto a partir de template."""
+                return scaffolding["create_project"](template, name, output_dir, description)
+            
+            def add_file_to_project(project_dir: str, filepath: str, content: str) -> str:
+                """Adiciona arquivo a um projeto existente."""
+                return scaffolding["add_file_to_project"](project_dir, filepath, content)
+            
+            tools.extend([
+                FunctionTool(list_project_templates),
+                FunctionTool(create_project),
+                FunctionTool(add_file_to_project),
+            ])
+            logger.info("✅ Scaffolding tools carregadas")
+        except ImportError as e:
+            logger.warning(f"Scaffolding tools não disponíveis: {e}")
         
         return tools
     

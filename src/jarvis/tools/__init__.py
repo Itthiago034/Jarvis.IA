@@ -102,6 +102,27 @@ from .refactoring import (
     RefactoringResult,
 )
 
+# GitHub tools - Integração GitHub API
+from .github_tools import get_github_tools
+
+# Research tools - Pesquisa web e Stack Overflow
+from .research_tools import get_research_tools
+
+# System tools - Automação Windows
+from .system_tools import get_system_tools
+
+# Vision tools - Análise de imagens com Gemini
+from .vision_tools import get_vision_tools
+
+# Docker tools - Gerenciamento de containers
+from .docker_tools import get_docker_tools
+
+# Database tools - SQL e NoSQL
+from .database_tools import get_database_tools
+
+# Scaffolding tools - Criação de projetos
+from .scaffolding_tools import get_scaffolding_tools
+
 __all__ = [
     # Terminal
     "run_command",
@@ -176,4 +197,18 @@ __all__ = [
     "add_type_hints",
     "extract_constant",
     "RefactoringResult",
+    # GitHub
+    "get_github_tools",
+    # Research
+    "get_research_tools",
+    # System
+    "get_system_tools",
+    # Vision
+    "get_vision_tools",
+    # Docker
+    "get_docker_tools",
+    # Database
+    "get_database_tools",
+    # Scaffolding
+    "get_scaffolding_tools",
 ]

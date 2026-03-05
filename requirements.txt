@@ -29,6 +29,25 @@ psutil>=5.9.0
 google-adk>=1.26.0
 mcp>=1.0.0
 
+# --- CLI (Interface de Linha de Comando) ---
+typer>=0.12.0
+rich>=13.0.0
+prompt-toolkit>=3.0.40
+pygments>=2.17.0
+
+# --- Ferramentas Expandidas v2 ---
+# Web scraping e pesquisa
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+
+# Vision/Screenshots
+pillow>=10.0.0
+
+# Bancos de Dados
+aiosqlite>=0.19.0
+asyncpg>=0.29.0
+motor>=3.3.0
+
 # --- Desenvolvimento (Opcional) ---
 # Descomente para ferramentas de desenvolvimento
 # pytest>=8.0.0
