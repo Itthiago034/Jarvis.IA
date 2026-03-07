@@ -24,12 +24,19 @@ from .search import (
     FileMatch,
 )
 
-# Web tools - Busca na web e documentação
+# Web tools - Acesso amplo à internet
 from .web import (
     fetch_webpage,
     fetch_webpage_sync,
     search_documentation,
+    search_web,
+    api_request,
+    get_web_tools,
+    WebBrowser,
     WebPage,
+    SearchResult,
+    DownloadResult,
+    USER_AGENTS,
 )
 
 # Code Analysis tools - Erros, métricas, usos

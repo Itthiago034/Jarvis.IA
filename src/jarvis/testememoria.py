@@ -20,9 +20,9 @@ class JarvisMemory:
         print(f"\n🚀 Enviando novas memórias para: {self.user_name}...")
         
         messages = [
-            {"role": "user", "content": "Gosto muito de poesia arcustica."},
-            {"role": "assistant", "content": "Ótima escolha! Qual sua música favorita dele?"},
-            {"role": "user", "content": "Minha favorita é poesia arcustica 2 e minha cor preferida é Azul."},
+            {"role": "user", "content": "Gosto muito de ouvir música."},
+            {"role": "assistant", "content": "Ótima escolha! Qual sua música você gosta mais?"},
+            {"role": "user", "content": "Minha favorita é Boa Sorte da Vanessa da Mata e minha cor preferida é Azul."},
         ]
 
         # O método add extrai os fatos e salva no banco de dados
