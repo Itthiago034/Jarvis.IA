@@ -15,10 +15,10 @@ import sys
 import argparse
 from pathlib import Path
 
-# Adiciona o src ao path
+# Adiciona o src ao path para importação em runtime
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from jarvis.voice_verification import (
+from src.jarvis.voice_verification import (  # noqa: E402
     interactive_enrollment,
     test_verification,
     get_verifier

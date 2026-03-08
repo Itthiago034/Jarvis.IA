@@ -1,7 +1,7 @@
 {
-  "include": ["src", "tests"],
+  "include": ["src", "tests", "."],
   "exclude": ["**/venv", "**/__pycache__", "**/.git", "**/node_modules", "**/.*"],
-  "extraPaths": ["src"],
+  "extraPaths": ["src", "."],
   "typeCheckingMode": "basic",
   "reportMissingImports": "warning",
   "reportMissingModuleSource": "none",
