@@ -15,9 +15,12 @@ import webbrowser
 import logging
 import os
 import asyncio
+import aiohttp
+import re
+import html
 from pathlib import Path
 from urllib.parse import quote_plus
-from typing import Optional
+from typing import Optional, List, Dict
 import ctypes
 
 logger = logging.getLogger(__name__)
@@ -414,6 +417,148 @@ async def run_terminal_command(command: str) -> str:
 
 
 # =============================================================================
+# FUNÇÕES DE BUSCA WEB
+# =============================================================================
+
+async def search_web_info(query: str) -> str:
+    """
+    Busca informações na web e retorna os resultados em texto.
+    NÃO abre o navegador - retorna as informações diretamente.
+    
+    Use para: notícias, informações sobre pessoas, eventos, preços, etc.
+    
+    Args:
+        query: O que buscar (ex: "últimas notícias sobre Bitcoin")
+        
+    Returns:
+        Resumo dos resultados encontrados em texto
+    """
+    logger.info(f"🔍 Buscando na web: {query}")
+    results = []
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            # 1. Tentar DuckDuckGo Instant Answer API primeiro
+            params = {
+                "q": query,
+                "format": "json",
+                "no_html": "1",
+                "skip_disambig": "1"
+            }
+            
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            }
+            
+            try:
+                async with session.get(
+                    "https://api.duckduckgo.com/",
+                    params=params,
+                    headers=headers,
+                    timeout=aiohttp.ClientTimeout(total=15)
+                ) as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        
+                        # Resposta principal (Abstract)
+                        if data.get("Abstract"):
+                            results.append({
+                                "title": data.get("Heading", "Resultado"),
+                                "snippet": data.get("Abstract", ""),
+                                "source": data.get("AbstractSource", "DuckDuckGo")
+                            })
+                        
+                        # Tópicos relacionados
+                        for topic in data.get("RelatedTopics", [])[:5]:
+                            if isinstance(topic, dict) and topic.get("Text"):
+                                results.append({
+                                    "title": topic.get("Text", "")[:80],
+                                    "snippet": topic.get("Text", ""),
+                                    "source": "DuckDuckGo"
+                                })
+                            elif isinstance(topic, dict) and topic.get("Topics"):
+                                for sub in topic.get("Topics", [])[:2]:
+                                    if sub.get("Text"):
+                                        results.append({
+                                            "title": sub.get("Text", "")[:80],
+                                            "snippet": sub.get("Text", ""),
+                                            "source": "DuckDuckGo"
+                                        })
+            except Exception as e:
+                logger.warning(f"DuckDuckGo API error: {e}")
+            
+            # 2. Se poucos resultados, fazer scraping do HTML do DuckDuckGo
+            if len(results) < 3:
+                try:
+                    html_url = f"https://html.duckduckgo.com/html/?q={quote_plus(query)}"
+                    async with session.get(
+                        html_url,
+                        headers=headers,
+                        timeout=aiohttp.ClientTimeout(total=15)
+                    ) as resp:
+                        if resp.status == 200:
+                            html_content = await resp.text()
+                            
+                            # Parse simples dos resultados
+                            result_pattern = r'<a rel="nofollow" class="result__a" href="([^"]+)"[^>]*>([^<]+)</a>'
+                            snippet_pattern = r'<a class="result__snippet"[^>]*>([^<]+)</a>'
+                            
+                            links = re.findall(result_pattern, html_content)
+                            snippets = re.findall(snippet_pattern, html_content)
+                            
+                            for i, (url, title) in enumerate(links[:5]):
+                                snippet = snippets[i] if i < len(snippets) else ""
+                                results.append({
+                                    "title": html.unescape(title),
+                                    "snippet": html.unescape(snippet),
+                                    "source": "Web"
+                                })
+                except Exception as e:
+                    logger.warning(f"DuckDuckGo HTML scrape error: {e}")
+        
+        # Formatar resultados para resposta por voz
+        if results:
+            response_parts = [f"Encontrei informações sobre '{query}':"]
+            for i, result in enumerate(results[:5], 1):
+                snippet = result.get('snippet', '')
+                if snippet:
+                    # Limitar tamanho do snippet
+                    if len(snippet) > 200:
+                        snippet = snippet[:200] + "..."
+                    response_parts.append(f"\n{i}. {snippet}")
+            
+            return "\n".join(response_parts)
+        else:
+            return f"Não encontrei informações específicas sobre '{query}'. Quer que eu abra uma busca no navegador?"
+            
+    except Exception as e:
+        logger.error(f"Erro na busca web: {e}")
+        return f"Ocorreu um erro ao buscar '{query}'. Tente novamente."
+
+
+async def open_browser_search(query: str) -> str:
+    """
+    Abre o navegador com uma busca no Google.
+    Use APENAS quando o usuário pedir explicitamente para ABRIR no navegador.
+    
+    Args:
+        query: Termo de busca
+        
+    Returns:
+        Mensagem de confirmação
+    """
+    encoded_query = quote_plus(query)
+    url = f"https://www.google.com/search?q={encoded_query}"
+    
+    try:
+        webbrowser.open(url)
+        return f"Busca por '{query}' aberta no navegador."
+    except Exception as e:
+        logger.error(f"Erro ao abrir busca no navegador: {e}")
+        return f"Erro ao abrir navegador: {str(e)}"
+
+
+# =============================================================================
 # REGISTRO DE FERRAMENTAS PARA LIVEKIT
 # =============================================================================
 
@@ -437,6 +582,8 @@ def get_voice_tools():
         "volume_mute": volume_mute,
         "get_system_info": get_system_info,
         "run_terminal_command": run_terminal_command,
+        "search_web_info": search_web_info,
+        "open_browser_search": open_browser_search,
     }
 
 

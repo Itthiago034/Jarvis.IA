@@ -16,7 +16,9 @@ from .voice_tools import (
     volume_down as _volume_down, 
     volume_mute as _volume_mute,
     get_system_info as _get_system_info, 
-    run_terminal_command as _run_terminal_command
+    run_terminal_command as _run_terminal_command,
+    search_web_info as _search_web_info,
+    open_browser_search as _open_browser_search
 )
 from mem0 import AsyncMemoryClient
 import logging
@@ -198,6 +200,36 @@ async def tool_run_terminal_command(command: str) -> str:
     return await _run_terminal_command(command)
 
 
+@function_tool(
+    name="search_web_info",
+    description="Busca informações na internet e retorna os resultados em TEXTO - NÃO abre o navegador. Use para: notícias, informações sobre pessoas/eventos, preços, fatos. SEMPRE use esta ferramenta quando pedirem informações ou notícias sem pedir para abrir o navegador."
+)
+async def tool_search_web_info(query: str) -> str:
+    """
+    Busca informações na web e retorna texto.
+    
+    Args:
+        query: O que buscar (ex: "últimas notícias sobre Bitcoin", "quem é Elon Musk")
+    """
+    logger.info(f"🔍 Buscando informações: {query}")
+    return await _search_web_info(query)
+
+
+@function_tool(
+    name="open_browser_search",
+    description="Abre o NAVEGADOR com uma busca no Google. Use APENAS quando o usuário pedir EXPLICITAMENTE para 'abrir no navegador' ou 'mostrar no browser/chrome'."
+)
+async def tool_open_browser_search(query: str) -> str:
+    """
+    Abre busca no navegador.
+    
+    Args:
+        query: Termo de busca
+    """
+    logger.info(f"🌐 Abrindo busca no navegador: {query}")
+    return await _open_browser_search(query)
+
+
 # Lista de todas as ferramentas disponíveis para o agente
 JARVIS_TOOLS = [
     tool_open_application,
@@ -213,6 +245,8 @@ JARVIS_TOOLS = [
     tool_volume_mute,
     tool_get_system_info,
     tool_run_terminal_command,
+    tool_search_web_info,
+    tool_open_browser_search,
 ]
 
 
