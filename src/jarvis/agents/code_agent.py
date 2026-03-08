@@ -65,6 +65,10 @@ class TaskType(Enum):
     REVIEW = "review"             # Code review
     TEST = "test"                 # Criar/executar testes
     OPTIMIZE = "optimize"         # Otimizar performance
+    DOCUMENT = "document"         # Documentar código
+    INTEGRATE = "integrate"       # Integrar com outros sistemas
+    MAINTAIN = "maintain"         # Manter código existente
+
 
 
 @dataclass
@@ -111,10 +115,12 @@ Executa comandos no sistema:
 - **find_files**: Encontra arquivos por padrão glob
 - **list_folder**: Lista conteúdo de diretórios
 
-## 3. 📁 Sistema de Arquivos (MCP FileSystem)
-- **read_file**: Lê conteúdo de arquivos
+## 3. 📁 Sistema de Arquivos (Nativo Python)
+- **read_file**: Lê conteúdo de arquivos (suporta range de linhas)
 - **write_file**: Escreve/cria arquivos
-- **directory_tree**: Visualiza estrutura do projeto
+- **read_multiple_files**: Lê vários arquivos de uma vez
+- **directory_tree**: Visualiza estrutura do projeto em árvore
+- **get_file_info**: Informações sobre arquivo (tamanho, data, etc.)
 
 ## 4. 🌐 Web/Documentação (fetch_web_page, search_stackoverflow, web_search)
 - Buscar documentação oficial online
@@ -237,6 +243,30 @@ Executa comandos no sistema:
 3. Identifique a causa raiz, não apenas sintomas
 4. Execute código de teste se necessário
 5. Proponha fix com explicação
+
+## Ao documentar código:
+1. Analise a estrutura e propósito do código
+2. Gere docstrings claras com Args, Returns, Raises
+3. Use o estilo solicitado (google, numpy, sphinx)
+4. Inclua exemplos de uso quando útil
+5. Para README: descreva instalação, uso e configuração
+6. Para arquitetura: crie diagramas Mermaid
+
+## Ao integrar sistemas:
+1. Pesquise a API/SDK oficial do serviço
+2. Implemente com async/await quando possível
+3. Adicione retry com backoff exponencial
+4. Use variáveis de ambiente para credenciais
+5. Trate erros específicos do serviço
+6. Inclua exemplos de uso e .env.example
+
+## Ao manter código:
+1. Faça health check inicial do projeto
+2. Identifique dependências desatualizadas
+3. Verifique vulnerabilidades de segurança
+4. Remova código morto com segurança
+5. Adicione testes para código não coberto
+6. Documente mudanças em CHANGELOG
 
 # Formato de Resposta
 
@@ -403,6 +433,190 @@ class CodeAgent:
                     working_directory or self.workspace_path,
                     timeout_seconds
                 )
+            
+            # ========== FILE TOOLS (SEM DEPENDÊNCIA DE MCP) ==========
+            def read_file(file_path: str, start_line: int = None, end_line: int = None) -> dict:
+                """
+                Lê o conteúdo de um arquivo.
+                Use para: analisar código, verificar configurações, ler documentos.
+                
+                Args:
+                    file_path: Caminho do arquivo (relativo ao workspace ou absoluto)
+                    start_line: Linha inicial (1-indexed, opcional)
+                    end_line: Linha final (1-indexed, opcional)
+                
+                Returns:
+                    Dicionário com content, lines_count, file_path, success
+                """
+                from pathlib import Path
+                try:
+                    # Suporta caminhos relativos e absolutos
+                    if Path(file_path).is_absolute():
+                        full_path = Path(file_path)
+                    else:
+                        full_path = Path(self.workspace_path) / file_path
+                    
+                    if not full_path.exists():
+                        return {"success": False, "error": f"Arquivo não encontrado: {file_path}"}
+                    
+                    if not full_path.is_file():
+                        return {"success": False, "error": f"Não é um arquivo: {file_path}"}
+                    
+                    with open(full_path, 'r', encoding='utf-8', errors='replace') as f:
+                        lines = f.readlines()
+                    
+                    # Se linhas específicas foram solicitadas
+                    if start_line is not None or end_line is not None:
+                        start_idx = (start_line - 1) if start_line else 0
+                        end_idx = end_line if end_line else len(lines)
+                        lines = lines[start_idx:end_idx]
+                    
+                    content = ''.join(lines)
+                    
+                    return {
+                        "success": True,
+                        "content": content,
+                        "lines_count": len(lines),
+                        "file_path": str(full_path),
+                        "file_size": full_path.stat().st_size
+                    }
+                except Exception as e:
+                    return {"success": False, "error": str(e)}
+            
+            def write_file(file_path: str, content: str, create_dirs: bool = True) -> dict:
+                """
+                Escreve conteúdo em um arquivo (cria ou sobrescreve).
+                
+                Args:
+                    file_path: Caminho do arquivo
+                    content: Conteúdo a escrever
+                    create_dirs: Se True, cria diretórios pais se não existirem
+                
+                Returns:
+                    Dicionário com success, file_path, bytes_written
+                """
+                from pathlib import Path
+                try:
+                    if Path(file_path).is_absolute():
+                        full_path = Path(file_path)
+                    else:
+                        full_path = Path(self.workspace_path) / file_path
+                    
+                    if create_dirs:
+                        full_path.parent.mkdir(parents=True, exist_ok=True)
+                    
+                    with open(full_path, 'w', encoding='utf-8') as f:
+                        bytes_written = f.write(content)
+                    
+                    return {
+                        "success": True,
+                        "file_path": str(full_path),
+                        "bytes_written": bytes_written
+                    }
+                except Exception as e:
+                    return {"success": False, "error": str(e)}
+            
+            def read_multiple_files(file_paths: list) -> list:
+                """
+                Lê múltiplos arquivos de uma vez.
+                
+                Args:
+                    file_paths: Lista de caminhos de arquivo
+                
+                Returns:
+                    Lista de dicionários com conteúdo de cada arquivo
+                """
+                results = []
+                for fp in file_paths:
+                    results.append(read_file(fp))
+                return results
+            
+            def directory_tree(path: str = ".", max_depth: int = 3) -> str:
+                """
+                Retorna árvore de diretórios em formato texto.
+                
+                Args:
+                    path: Diretório raiz (relativo ao workspace)
+                    max_depth: Profundidade máxima
+                
+                Returns:
+                    String com árvore formatada
+                """
+                from pathlib import Path
+                
+                if Path(path).is_absolute():
+                    root = Path(path)
+                else:
+                    root = Path(self.workspace_path) / path
+                
+                if not root.exists():
+                    return f"Diretório não encontrado: {path}"
+                
+                lines = [str(root.name) + "/"]
+                
+                def add_tree(current_path, prefix="", depth=0):
+                    if depth >= max_depth:
+                        return
+                    
+                    try:
+                        items = sorted(current_path.iterdir(), key=lambda x: (x.is_file(), x.name.lower()))
+                    except PermissionError:
+                        return
+                    
+                    # Filtrar itens ocultos e pastas comuns de ignorar
+                    ignore = {'__pycache__', '.git', 'node_modules', '.venv', 'venv', '.idea', '.vscode'}
+                    items = [i for i in items if i.name not in ignore and not i.name.startswith('.')]
+                    
+                    for i, item in enumerate(items):
+                        is_last = (i == len(items) - 1)
+                        connector = "└── " if is_last else "├── "
+                        
+                        if item.is_dir():
+                            lines.append(f"{prefix}{connector}{item.name}/")
+                            extension = "    " if is_last else "│   "
+                            add_tree(item, prefix + extension, depth + 1)
+                        else:
+                            lines.append(f"{prefix}{connector}{item.name}")
+                
+                add_tree(root)
+                return "\n".join(lines)
+            
+            def get_file_info(file_path: str) -> dict:
+                """
+                Obtém informações sobre um arquivo.
+                
+                Returns:
+                    Dicionário com nome, tamanho, extensão, modificado, etc.
+                """
+                from pathlib import Path
+                import stat
+                from datetime import datetime
+                
+                try:
+                    if Path(file_path).is_absolute():
+                        full_path = Path(file_path)
+                    else:
+                        full_path = Path(self.workspace_path) / file_path
+                    
+                    if not full_path.exists():
+                        return {"success": False, "error": f"Não existe: {file_path}"}
+                    
+                    st = full_path.stat()
+                    
+                    return {
+                        "success": True,
+                        "name": full_path.name,
+                        "path": str(full_path),
+                        "is_file": full_path.is_file(),
+                        "is_dir": full_path.is_dir(),
+                        "size_bytes": st.st_size,
+                        "size_human": f"{st.st_size / 1024:.1f} KB" if st.st_size < 1024*1024 else f"{st.st_size / (1024*1024):.2f} MB",
+                        "extension": full_path.suffix or "(none)",
+                        "modified": datetime.fromtimestamp(st.st_mtime).isoformat(),
+                        "created": datetime.fromtimestamp(st.st_ctime).isoformat(),
+                    }
+                except Exception as e:
+                    return {"success": False, "error": str(e)}
             
             # ========== SEARCH TOOLS ==========
             def search_in_code(
@@ -613,6 +827,12 @@ class CodeAgent:
             custom_tools = [
                 # Terminal
                 FunctionTool(execute_terminal_command),
+                # File Operations (nativo Python - sem MCP)
+                FunctionTool(read_file),
+                FunctionTool(write_file),
+                FunctionTool(read_multiple_files),
+                FunctionTool(directory_tree),
+                FunctionTool(get_file_info),
                 # Search
                 FunctionTool(search_in_code),
                 FunctionTool(find_files),
@@ -660,7 +880,11 @@ class CodeAgent:
         except Exception as e:
             logger.warning(f"Erro ao configurar custom tools: {e}")
         
-        # ===== MCP FILE SYSTEM TOOLS =====
+        # ===== MCP FILE SYSTEM TOOLS (opcional - já temos ferramentas Python nativas) =====
+        # NOTA: As ferramentas read_file, write_file, etc. agora são Python nativas
+        # e não dependem de Node.js. O MCP está comentado para evitar duplicação.
+        # Se preferir usar MCP (requer Node.js), descomente o bloco abaixo.
+        """
         try:
             filesystem_toolset = McpToolset(
                 connection_params=StdioConnectionParams(
@@ -689,6 +913,7 @@ class CodeAgent:
         except Exception as e:
             logger.warning(f"Não foi possível configurar FileSystem MCP tools: {e}")
             logger.info("Usando apenas custom tools (não requer Node.js)")
+        """
         
         # ===== GITHUB MCP TOOLS (opcional) =====
         if self.enable_github:
@@ -1232,6 +1457,312 @@ class CodeAgent:
         """
         return await self.run(request)
     
+    # ========== DOCUMENT - Documentar código ==========
+    async def document_code(
+        self,
+        target: str,
+        doc_type: str = "auto",
+        style: str = "google",
+        output_path: Optional[str] = None
+    ) -> CodeTaskResult:
+        """
+        Gera documentação para código.
+        
+        Args:
+            target: Arquivo, pasta ou projeto a documentar
+            doc_type: Tipo de documentação:
+                - "auto": Detecta automaticamente
+                - "docstrings": Adiciona docstrings às funções/classes
+                - "readme": Gera README.md
+                - "api": Gera documentação de API (Sphinx/MkDocs)
+                - "inline": Adiciona comentários inline
+                - "architecture": Documenta arquitetura com diagramas
+            style: Estilo de docstring (google, numpy, sphinx)
+            output_path: Onde salvar documentação gerada
+            
+        Returns:
+            CodeTaskResult com documentação gerada
+        """
+        output_instruction = f"\nSalve a documentação em: {output_path}" if output_path else ""
+        
+        request = f"""
+        Gere documentação para: {target}
+        Tipo: {doc_type}
+        Estilo de docstring: {style}
+        {output_instruction}
+        
+        Instruções conforme o tipo:
+        
+        Se "docstrings" ou "auto" para arquivo Python:
+        1. Leia o arquivo
+        2. Identifique todas as funções, classes e métodos
+        3. Gere docstrings no estilo {style} com:
+           - Descrição clara do propósito
+           - Args com tipos e descrições
+           - Returns com tipo e descrição
+           - Raises se aplicável
+           - Exemplos de uso quando útil
+        4. Mostre o código completo com as docstrings
+        
+        Se "readme":
+        1. Analise a estrutura do projeto
+        2. Leia arquivos principais (setup.py, pyproject.toml, package.json)
+        3. Gere README.md com:
+           - Título e descrição
+           - Badges (se aplicável)
+           - Instalação
+           - Uso básico com exemplos
+           - Configuração
+           - Contribuição
+           - Licença
+        
+        Se "api":
+        1. Analise todos os módulos públicos
+        2. Gere documentação no formato Sphinx/MkDocs
+        3. Inclua índice de módulos, classes e funções
+        4. Documente parâmetros, retornos e exceções
+        
+        Se "architecture":
+        1. Analise a estrutura do projeto
+        2. Identifique componentes principais
+        3. Gere diagrama Mermaid de arquitetura
+        4. Documente fluxos de dados
+        5. Liste dependências e integrações
+        
+        Se "inline":
+        1. Leia o arquivo
+        2. Adicione comentários explicativos em:
+           - Lógica complexa
+           - Algoritmos não triviais
+           - Decisões de design
+           - TODOs e FIXMEs quando apropriado
+        """
+        return await self.run(request)
+    
+    async def generate_readme(self, project_path: str = ".") -> CodeTaskResult:
+        """Atalho para gerar README.md do projeto."""
+        return await self.document_code(project_path, doc_type="readme", output_path="README.md")
+    
+    async def add_docstrings(self, file_path: str, style: str = "google") -> CodeTaskResult:
+        """Atalho para adicionar docstrings a um arquivo."""
+        return await self.document_code(file_path, doc_type="docstrings", style=style)
+    
+    # ========== INTEGRATE - Integrar com outros sistemas ==========
+    async def integrate_system(
+        self,
+        service: str,
+        integration_type: str = "client",
+        config: Optional[Dict[str, Any]] = None
+    ) -> CodeTaskResult:
+        """
+        Gera código de integração com serviços externos.
+        
+        Args:
+            service: Serviço a integrar (ex: "stripe", "aws-s3", "firebase", "openai")
+            integration_type: Tipo de integração:
+                - "client": Gera client/SDK wrapper
+                - "webhook": Configura endpoint de webhook
+                - "oauth": Implementa fluxo OAuth
+                - "api": Gera REST API client
+                - "database": Configura conexão com banco
+                - "queue": Integração com filas (RabbitMQ, SQS, etc)
+            config: Configurações específicas (endpoints, credenciais placeholder)
+            
+        Returns:
+            CodeTaskResult com código de integração
+        """
+        config_str = f"\nConfigurações: {config}" if config else ""
+        
+        request = f"""
+        Crie integração com: {service}
+        Tipo: {integration_type}
+        {config_str}
+        
+        Requisitos gerais:
+        1. Use async/await quando apropriado
+        2. Implemente retry com backoff exponencial
+        3. Trate erros específicos do serviço
+        4. Use variáveis de ambiente para credenciais
+        5. Inclua logging adequado
+        6. Adicione docstrings e type hints
+        
+        Conforme o tipo:
+        
+        Se "client":
+        1. Crie classe wrapper para o serviço
+        2. Implemente métodos para operações principais
+        3. Adicione autenticação
+        4. Inclua validação de entrada
+        5. Retorne tipos consistentes
+        
+        Se "webhook":
+        1. Crie endpoint FastAPI/Flask para receber webhooks
+        2. Valide assinatura/autenticação do webhook
+        3. Parse payload conforme documentação do serviço
+        4. Implemente idempotência
+        5. Retorne status apropriado
+        
+        Se "oauth":
+        1. Implemente fluxo OAuth 2.0 completo
+        2. Authorization URL generation
+        3. Token exchange
+        4. Refresh token handling
+        5. Armazenamento seguro de tokens
+        
+        Se "api":
+        1. Gere client HTTP com requests/aiohttp
+        2. Implemente todos os endpoints principais
+        3. Serialize/deserialize automaticamente
+        4. Rate limiting se necessário
+        
+        Se "database":
+        1. Configure connection pool
+        2. Implemente CRUD básico
+        3. Migrations se aplicável
+        4. Índices recomendados
+        
+        Se "queue":
+        1. Producer e Consumer
+        2. Serialização de mensagens
+        3. Dead letter queue
+        4. Acknowledgment correto
+        
+        Inclua também:
+        - Arquivo .env.example com variáveis necessárias
+        - requirements.txt com dependências
+        - Exemplo de uso
+        """
+        return await self.run(request)
+    
+    async def create_api_client(self, api_url: str, api_name: str) -> CodeTaskResult:
+        """Atalho para criar client de API REST."""
+        return await self.integrate_system(
+            service=api_name,
+            integration_type="api",
+            config={"base_url": api_url}
+        )
+    
+    async def setup_webhook(self, service: str, endpoint: str = "/webhook") -> CodeTaskResult:
+        """Atalho para configurar webhook endpoint."""
+        return await self.integrate_system(
+            service=service,
+            integration_type="webhook",
+            config={"endpoint": endpoint}
+        )
+    
+    # ========== MAINTAIN - Manter código existente ==========
+    async def maintain_code(
+        self,
+        target: str,
+        action: str = "health_check",
+        options: Optional[Dict[str, Any]] = None
+    ) -> CodeTaskResult:
+        """
+        Executa tarefas de manutenção em código existente.
+        
+        Args:
+            target: Arquivo, pasta ou projeto
+            action: Ação de manutenção:
+                - "health_check": Verifica saúde geral do código
+                - "update_deps": Atualiza dependências
+                - "security_scan": Verifica vulnerabilidades
+                - "cleanup": Remove código morto/não usado
+                - "migrate": Migra para versão mais nova
+                - "add_tests": Adiciona testes faltantes
+                - "fix_lint": Corrige problemas de linting
+                - "optimize_imports": Organiza imports em todo projeto
+            options: Opções específicas da ação
+            
+        Returns:
+            CodeTaskResult com resultado da manutenção
+        """
+        options_str = f"\nOpções: {options}" if options else ""
+        
+        request = f"""
+        Execute manutenção em: {target}
+        Ação: {action}
+        {options_str}
+        
+        Conforme a ação:
+        
+        Se "health_check":
+        1. Liste arquivos e estrutura do projeto
+        2. Verifique erros de sintaxe em todos os arquivos
+        3. Analise cobertura de testes
+        4. Verifique documentação existente
+        5. Identifique code smells
+        6. Verifique dependências desatualizadas
+        7. Gere relatório com nota geral e recomendações prioritárias
+        
+        Se "update_deps":
+        1. Leia requirements.txt ou package.json
+        2. Verifique versões mais recentes disponíveis
+        3. Identifique breaking changes
+        4. Sugira atualizações seguras vs arriscadas
+        5. Gere comando para atualização
+        
+        Se "security_scan":
+        1. Verifique dependências com vulnerabilidades conhecidas
+        2. Procure por hardcoded secrets
+        3. Identifique SQL injection, XSS potenciais
+        4. Verifique permissões de arquivo
+        5. Liste problemas por severidade (crítico, alto, médio, baixo)
+        
+        Se "cleanup":
+        1. Identifique imports não utilizados
+        2. Encontre variáveis/funções não referenciadas
+        3. Detecte código comentado
+        4. Encontre arquivos órfãos
+        5. Sugira remoções seguras
+        
+        Se "migrate":
+        1. Identifique versão atual
+        2. Liste mudanças necessárias para nova versão
+        3. Aplique transformações automáticas
+        4. Liste mudanças manuais necessárias
+        5. Teste funcionalidade básica
+        
+        Se "add_tests":
+        1. Identifique funções/classes sem testes
+        2. Analise complexidade e criticidade
+        3. Gere testes unitários com pytest
+        4. Inclua casos de borda
+        5. Mock dependências externas
+        
+        Se "fix_lint":
+        1. Execute linting (pylint, flake8, eslint)
+        2. Classifique erros por tipo
+        3. Corrija automaticamente o possível
+        4. Liste correções manuais necessárias
+        
+        Se "optimize_imports":
+        1. Analise todos os arquivos do projeto
+        2. Organize imports (stdlib, terceiros, locais)
+        3. Remova imports não utilizados
+        4. Ordene alfabeticamente
+        """
+        return await self.run(request)
+    
+    async def health_check(self, project_path: str = ".") -> CodeTaskResult:
+        """Atalho para verificar saúde do projeto."""
+        return await self.maintain_code(project_path, action="health_check")
+    
+    async def security_scan(self, target: str = ".") -> CodeTaskResult:
+        """Atalho para scan de segurança."""
+        return await self.maintain_code(target, action="security_scan")
+    
+    async def update_dependencies(self, project_path: str = ".") -> CodeTaskResult:
+        """Atalho para atualizar dependências."""
+        return await self.maintain_code(project_path, action="update_deps")
+    
+    async def add_missing_tests(self, target: str) -> CodeTaskResult:
+        """Atalho para adicionar testes faltantes."""
+        return await self.maintain_code(target, action="add_tests")
+    
+    async def cleanup_code(self, target: str = ".") -> CodeTaskResult:
+        """Atalho para limpeza de código morto."""
+        return await self.maintain_code(target, action="cleanup")
+    
     async def shutdown(self):
         """Encerra o agente e libera recursos"""
         if hasattr(self, '_filesystem_toolset'):
@@ -1256,6 +1787,38 @@ async def quick_create(description: str) -> str:
     """Cria código rapidamente baseado em descrição"""
     agent = CodeAgent()
     result = await agent.create_code(description)
+    await agent.shutdown()
+    return result.message
+
+
+async def quick_document(target: str, doc_type: str = "auto") -> str:
+    """Documenta código rapidamente"""
+    agent = CodeAgent()
+    result = await agent.document_code(target, doc_type=doc_type)
+    await agent.shutdown()
+    return result.message
+
+
+async def quick_integrate(service: str, integration_type: str = "client") -> str:
+    """Cria integração rapidamente"""
+    agent = CodeAgent()
+    result = await agent.integrate_system(service, integration_type=integration_type)
+    await agent.shutdown()
+    return result.message
+
+
+async def quick_health_check(project_path: str = ".") -> str:
+    """Verifica saúde do projeto rapidamente"""
+    agent = CodeAgent()
+    result = await agent.health_check(project_path)
+    await agent.shutdown()
+    return result.message
+
+
+async def quick_security_scan(target: str = ".") -> str:
+    """Scan de segurança rápido"""
+    agent = CodeAgent()
+    result = await agent.security_scan(target)
     await agent.shutdown()
     return result.message
 
