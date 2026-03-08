@@ -20,6 +20,7 @@ from .manager import PluginManager, get_plugin_manager
 # Plugins incluídos
 from .weather import WeatherPlugin
 from .spotify import SpotifyPlugin
+from .youtube_music import YouTubeMusicPlugin
 from .system import SystemPlugin
 from .datetime_plugin import DateTimePlugin
 from .apps import AppsPlugin
@@ -39,7 +40,8 @@ __all__ = [
     
     # Plugins
     "WeatherPlugin",
-    "SpotifyPlugin", 
+    "SpotifyPlugin",
+    "YouTubeMusicPlugin",
     "SystemPlugin",
     "DateTimePlugin",
     "AppsPlugin",

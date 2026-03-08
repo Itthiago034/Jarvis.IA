@@ -26,7 +26,8 @@ class JarvisMemory:
         ]
 
         # O método add extrai os fatos e salva no banco de dados
-        self.client.add(messages, user_id=self.user_name)
+        # output_format="v1.1" evita o DeprecationWarning
+        self.client.add(messages, user_id=self.user_name, output_format="v1.1")
         print("✅ Informações processadas e salvas com sucesso!")
 
     def buscar_memorias(self):
@@ -35,10 +36,11 @@ class JarvisMemory:
         
         query = f"Quais são as preferências e gostos de {self.user_name}?"
         
-        # Na v2, o search exige filters com AND/OR
+        # Na API v2 do Mem0, filters é um dict simples
         response = self.client.search(
             query, 
-            filters={"AND": [{"user_id": self.user_name}]}
+            user_id=self.user_name,
+            filters={"user_id": self.user_name}
         )
 
         # Tratamento da estrutura de resposta (lista ou dicionário)
