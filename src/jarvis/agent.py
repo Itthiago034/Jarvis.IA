@@ -1,8 +1,23 @@
 from dotenv import load_dotenv
 from livekit import agents
-from livekit.agents import AgentSession, Agent, RoomInputOptions, ChatContext
+from livekit.agents import AgentSession, Agent, RoomInputOptions, ChatContext, function_tool
 from livekit.plugins import noise_cancellation, google
 from .prompts import AGENT_INSTRUCTION, SESSION_INSTRUCTION
+from .voice_tools import (
+    open_application as _open_application, 
+    open_website as _open_website, 
+    open_folder as _open_folder,
+    play_music as _play_music, 
+    search_youtube as _search_youtube,
+    media_play_pause as _media_play_pause, 
+    media_next as _media_next, 
+    media_previous as _media_previous,
+    volume_up as _volume_up, 
+    volume_down as _volume_down, 
+    volume_mute as _volume_mute,
+    get_system_info as _get_system_info, 
+    run_terminal_command as _run_terminal_command
+)
 from mem0 import AsyncMemoryClient
 import logging
 import os
@@ -18,16 +33,200 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+# ============================================================================
+# FERRAMENTAS DO JARVIS (usando nova API do LiveKit 1.4.x)
+# ============================================================================
+
+@function_tool(
+    name="open_application",
+    description="Abre um aplicativo no computador. Use para abrir Chrome, VS Code, Word, Excel, calculadora, terminal, Discord, Spotify, etc."
+)
+async def tool_open_application(app_name: str) -> str:
+    """
+    Abre um aplicativo no computador.
+    
+    Args:
+        app_name: Nome do aplicativo (ex: "chrome", "vscode", "calculadora")
+    """
+    logger.info(f"🚀 Abrindo aplicativo: {app_name}")
+    return await _open_application(app_name)
+
+
+@function_tool(
+    name="open_website",
+    description="Abre um site no navegador. Use para YouTube, Google, Gmail, GitHub, Netflix, etc."
+)
+async def tool_open_website(url_or_name: str) -> str:
+    """
+    Abre um site no navegador padrão.
+    
+    Args:
+        url_or_name: Nome do site ou URL
+    """
+    logger.info(f"🌐 Abrindo site: {url_or_name}")
+    return await _open_website(url_or_name)
+
+
+@function_tool(
+    name="open_folder",
+    description="Abre uma pasta como Downloads, Documentos, Desktop no explorador de arquivos."
+)
+async def tool_open_folder(folder_name: str) -> str:
+    """
+    Abre uma pasta no explorador.
+    
+    Args:
+        folder_name: Nome da pasta (downloads, documentos, desktop)
+    """
+    logger.info(f"📁 Abrindo pasta: {folder_name}")
+    return await _open_folder(folder_name)
+
+
+@function_tool(
+    name="play_music",
+    description="Busca e toca uma música no YouTube Music. Use quando o usuário pedir para tocar uma música específica."
+)
+async def tool_play_music(song_name: str, artist: str = "") -> str:
+    """
+    Busca e toca uma música no YouTube Music.
+    
+    Args:
+        song_name: Nome da música
+        artist: Artista (opcional)
+    """
+    logger.info(f"🎵 Buscando música: {song_name} - {artist}")
+    return await _play_music(song_name, artist)
+
+
+@function_tool(
+    name="search_youtube",
+    description="Faz uma busca no YouTube. Use quando o usuário quiser pesquisar vídeos."
+)
+async def tool_search_youtube(query: str) -> str:
+    """
+    Busca no YouTube.
+    
+    Args:
+        query: Termo de busca
+    """
+    logger.info(f"🔍 Buscando no YouTube: {query}")
+    return await _search_youtube(query)
+
+
+@function_tool(
+    name="media_play_pause",
+    description="Pausa ou continua a música/vídeo atual. Use quando pedirem para pausar ou dar play."
+)
+async def tool_media_play_pause() -> str:
+    """Pausa ou retoma a mídia."""
+    logger.info("⏯️ Play/Pause")
+    return await _media_play_pause()
+
+
+@function_tool(
+    name="media_next",
+    description="Pula para a próxima música ou vídeo."
+)
+async def tool_media_next() -> str:
+    """Próxima faixa."""
+    logger.info("⏭️ Próxima faixa")
+    return await _media_next()
+
+
+@function_tool(
+    name="media_previous",
+    description="Volta para a música ou vídeo anterior."
+)
+async def tool_media_previous() -> str:
+    """Faixa anterior."""
+    logger.info("⏮️ Faixa anterior")
+    return await _media_previous()
+
+
+@function_tool(
+    name="volume_up",
+    description="Aumenta o volume do sistema."
+)
+async def tool_volume_up() -> str:
+    """Aumenta o volume."""
+    logger.info("🔊 Aumentando volume")
+    return await _volume_up()
+
+
+@function_tool(
+    name="volume_down",
+    description="Diminui o volume do sistema."
+)
+async def tool_volume_down() -> str:
+    """Diminui o volume."""
+    logger.info("🔉 Diminuindo volume")
+    return await _volume_down()
+
+
+@function_tool(
+    name="volume_mute",
+    description="Muta ou desmuta o áudio do sistema."
+)
+async def tool_volume_mute() -> str:
+    """Muta/desmuta."""
+    logger.info("🔇 Mute toggle")
+    return await _volume_mute()
+
+
+@function_tool(
+    name="get_system_info",
+    description="Retorna informações do sistema: bateria, CPU, memória, disco."
+)
+async def tool_get_system_info() -> str:
+    """Informações do sistema."""
+    logger.info("💻 Obtendo info do sistema")
+    return await _get_system_info()
+
+
+@function_tool(
+    name="run_terminal_command",
+    description="Executa um comando seguro no terminal. Apenas comandos de leitura permitidos."
+)
+async def tool_run_terminal_command(command: str) -> str:
+    """
+    Executa comando no terminal.
+    
+    Args:
+        command: Comando a executar (git status, pip list, dir, etc.)
+    """
+    logger.info(f"⌨️ Executando: {command}")
+    return await _run_terminal_command(command)
+
+
+# Lista de todas as ferramentas disponíveis para o agente
+JARVIS_TOOLS = [
+    tool_open_application,
+    tool_open_website,
+    tool_open_folder,
+    tool_play_music,
+    tool_search_youtube,
+    tool_media_play_pause,
+    tool_media_next,
+    tool_media_previous,
+    tool_volume_up,
+    tool_volume_down,
+    tool_volume_mute,
+    tool_get_system_info,
+    tool_run_terminal_command,
+]
+
+
 class Assistant(Agent):
     def __init__(self, chat_ctx: ChatContext = None):
         super().__init__(
-
             instructions=AGENT_INSTRUCTION,
             llm=google.beta.realtime.RealtimeModel(
                 voice="Charon",
                 temperature=0.6,
             ),
             chat_ctx=chat_ctx,
+            # Nova API: passa ferramentas como lista
+            tools=JARVIS_TOOLS,
         )
 
 
