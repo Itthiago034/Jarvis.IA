@@ -1,24 +1,46 @@
-# 🚀 PROPOSTA DE APRIMORAMENTO - JARVIS v3.0
+# 🦅 PROPOSTA DE APRIMORAMENTO - OPENCLAW v3.0
 
 > **Análise Arquitetural e Roadmap de Evolução**  
 > Autor: Arquitetura de Software & Engenharia de IA  
 > Data: Março 2026  
-> Versão Atual: 0.2.0 → Versão Alvo: 3.0.0
+> Versão Atual: 0.2.0 (JARVIS) → Versão Alvo: 3.0.0 (OpenClaw)
+
+---
+
+## 🔄 REBRANDING: JARVIS → OPENCLAW
+
+O projeto está evoluindo de **JARVIS** para **OpenClaw** - um assistente de IA mais inteligente, seguro e autônomo.
+
+### Por que OpenClaw?
+- **Open** - Código aberto, transparente, extensível
+- **Claw** - Garras que agarram e executam tarefas com precisão
+
+### Principais Evoluções
+| Aspecto | JARVIS (v0.2) | OpenClaw (v3.0) |
+|---------|---------------|-----------------|
+| **Autonomia** | Reativo (só responde) | Proativo (aprende e age) |
+| **Segurança** | Básica | Enterprise-grade |
+| **Web Access** | Limitado | Secure Web Fetch |
+| **Aprendizado** | Memória simples | Routine Learning |
+| **Proteção** | Nenhuma | Anti-hacker, Encryption |
 
 ---
 
 ## 📋 Sumário Executivo
 
-O JARVIS atingiu uma maturidade considerável com:
+O OpenClaw (anteriormente JARVIS) atingiu uma maturidade considerável com:
 - **Agente de voz funcional** (LiveKit + Google Realtime)
 - **Sistema de plugins extensível** (15+ plugins/tools)
 - **Memória persistente** (mem0)
 - **CodeAgent poderoso** (50+ ferramentas)
 
-Este documento propõe evoluções em **três pilares**:
+Este documento propõe evoluções em **seis pilares**:
 1. 🏗️ **Arquitetura** - Modernização e escalabilidade
 2. ⚡ **Performance** - Otimização de componentes críticos
 3. ✨ **Features** - Novas funcionalidades de alto impacto
+4. 🔒 **Segurança** - Proteção enterprise contra ataques e vazamentos
+5. 🧠 **Aprendizado de Rotina** - Ações autônomas baseadas em padrões
+6. 🌐 **Web Fetch Seguro** - Acesso à internet com proteção
 
 ---
 
@@ -1548,6 +1570,2086 @@ joblib>=1.3.0           # Serialização de modelos
 - [LiveKit Agents](https://docs.livekit.io/agents/)
 - [Google ADK](https://github.com/google/adk-python)
 - [Pyannote Speaker Diarization](https://github.com/pyannote/pyannote-audio)
+
+---
+
+## 🔒 PARTE 4: SISTEMA DE SEGURANÇA ENTERPRISE
+
+### 4.1 Visão Geral de Segurança
+
+O OpenClaw implementa um sistema de segurança em **camadas múltiplas** para garantir proteção contra:
+- 🛡️ Injeção de comandos maliciosos
+- 🔐 Vazamento de dados sensíveis
+- 🚫 Acesso não autorizado
+- 🦠 Execução de código malicioso
+- 🌐 Ataques via web (XSS, CSRF, etc.)
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    ARQUITETURA DE SEGURANÇA OPENCLAW                │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                     🛡️ CAMADA 1: PERÍMETRO                         │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌───────────┐  │
+│  │ Rate Limit  │  │   WAF       │  │ Input       │  │ Auth      │  │
+│  │ (100/min)   │  │ (Firewall)  │  │ Sanitizer   │  │ Manager   │  │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └───────────┘  │
+└─────────────────────────────────────────────────────────────────────┘
+                              │
+┌─────────────────────────────▼───────────────────────────────────────┐
+│                     🔐 CAMADA 2: AUTENTICAÇÃO                       │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │  Multi-Factor Authentication                                 │   │
+│  │  ├── Voice Biometrics (speaker verification)                 │   │
+│  │  ├── Device Fingerprint                                      │   │
+│  │  ├── Session Tokens (JWT + refresh)                          │   │
+│  │  └── Optional: Hardware Key (FIDO2)                          │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────┘
+                              │
+┌─────────────────────────────▼───────────────────────────────────────┐
+│                     🔒 CAMADA 3: AUTORIZAÇÃO                        │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │  Permission System                                           │   │
+│  │  ├── Command Whitelist (ações permitidas)                    │   │
+│  │  ├── Resource Access Control (arquivos, APIs)                │   │
+│  │  ├── Time-based Restrictions (horários)                      │   │
+│  │  └── Geolocation Policies (opcional)                         │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────┘
+                              │
+┌─────────────────────────────▼───────────────────────────────────────┐
+│                     📦 CAMADA 4: EXECUÇÃO SEGURA                    │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │  Sandbox & Isolation                                         │   │
+│  │  ├── Process Isolation (subprocess com limits)               │   │
+│  │  ├── Network Isolation (firewall rules)                      │   │
+│  │  ├── Resource Limits (CPU, RAM, tempo)                       │   │
+│  │  └── Container Option (Docker sandbox)                       │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────┘
+                              │
+┌─────────────────────────────▼───────────────────────────────────────┐
+│                     🗄️ CAMADA 5: DADOS                              │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │  Data Protection                                             │   │
+│  │  ├── Encryption at Rest (AES-256)                            │   │
+│  │  ├── Encryption in Transit (TLS 1.3)                         │   │
+│  │  ├── Secure Key Storage (OS keychain)                        │   │
+│  │  └── Data Minimization (não guarda o desnecessário)          │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────┘
+                              │
+┌─────────────────────────────▼───────────────────────────────────────┐
+│                     📋 CAMADA 6: AUDITORIA                          │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │  Audit & Monitoring                                          │   │
+│  │  ├── Immutable Logs (append-only)                            │   │
+│  │  ├── Anomaly Detection                                       │   │
+│  │  ├── Real-time Alerts                                        │   │
+│  │  └── Forensics Support                                       │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 4.2 Implementação: Command Whitelist & Sanitization
+
+```python
+# Proposta: src/openclaw/security/command_guard.py
+
+import re
+import hashlib
+import hmac
+from enum import Enum
+from typing import Optional, List, Set
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+import logging
+
+logger = logging.getLogger(__name__)
+
+class RiskLevel(Enum):
+    SAFE = "safe"           # Pode executar sempre
+    LOW = "low"             # Log apenas
+    MEDIUM = "medium"       # Requer confirmação
+    HIGH = "high"           # Requer autenticação extra
+    CRITICAL = "critical"   # Bloqueado por padrão
+
+@dataclass
+class CommandPolicy:
+    pattern: str
+    risk_level: RiskLevel
+    description: str
+    requires_confirmation: bool = False
+    max_daily_uses: int = -1  # -1 = ilimitado
+
+class CommandGuard:
+    """
+    Sistema de proteção contra comandos maliciosos.
+    Implementa whitelist + blacklist + análise de risco.
+    """
+    
+    # Comandos SEMPRE bloqueados (blacklist)
+    BLOCKED_PATTERNS = [
+        r"rm\s+-rf\s+/",              # Delete root
+        r"format\s+c:",               # Format drive
+        r"del\s+/s\s+/q",             # Delete all Windows
+        r":\(\)\{\s*:\|:\s*&\s*\};:", # Fork bomb
+        r">\s*/dev/sd",               # Overwrite disk
+        r"mkfs\.",                    # Format filesystem
+        r"dd\s+if=.*of=/dev/",        # Direct disk write
+        r"curl.*\|\s*bash",           # Pipe to bash
+        r"wget.*\|\s*sh",             # Pipe to shell
+        r"powershell.*-enc",          # Encoded PowerShell
+        r"base64.*\|\s*bash",         # Base64 to bash
+        r"eval\s*\(",                 # Eval execution
+        r"exec\s*\(",                 # Exec execution
+        r"__import__",                # Python import injection
+        r"os\.system",                # Direct system call
+        r"subprocess\.call.*shell=True", # Shell injection
+    ]
+    
+    # Comandos permitidos (whitelist) com níveis de risco
+    ALLOWED_COMMANDS = {
+        # SAFE - Sempre permitidos
+        "open_app": CommandPolicy(
+            pattern=r"^(abrir?|open|iniciar)\s+\w+$",
+            risk_level=RiskLevel.SAFE,
+            description="Abrir aplicativo conhecido"
+        ),
+        "media_control": CommandPolicy(
+            pattern=r"^(play|pause|stop|next|previous|volume)$",
+            risk_level=RiskLevel.SAFE,
+            description="Controle de mídia"
+        ),
+        "time_query": CommandPolicy(
+            pattern=r"^(que horas|que dia|data|hora).*$",
+            risk_level=RiskLevel.SAFE,
+            description="Consulta de horário"
+        ),
+        
+        # LOW - Permitidos com log
+        "web_search": CommandPolicy(
+            pattern=r"^(pesquisar?|buscar?|search)\s+.+$",
+            risk_level=RiskLevel.LOW,
+            description="Pesquisa na web",
+            max_daily_uses=100
+        ),
+        "read_file": CommandPolicy(
+            pattern=r"^(ler|read|mostrar?)\s+arquivo\s+.+$",
+            risk_level=RiskLevel.LOW,
+            description="Leitura de arquivo"
+        ),
+        
+        # MEDIUM - Requer confirmação verbal
+        "write_file": CommandPolicy(
+            pattern=r"^(escrever?|criar?|salvar?)\s+arquivo\s+.+$",
+            risk_level=RiskLevel.MEDIUM,
+            description="Escrita de arquivo",
+            requires_confirmation=True,
+            max_daily_uses=50
+        ),
+        "install_package": CommandPolicy(
+            pattern=r"^(instalar?|install)\s+.+$",
+            risk_level=RiskLevel.MEDIUM,
+            description="Instalação de pacote",
+            requires_confirmation=True,
+            max_daily_uses=20
+        ),
+        
+        # HIGH - Requer autenticação extra
+        "system_command": CommandPolicy(
+            pattern=r"^(executar?|run|rodar?)\s+comando\s+.+$",
+            risk_level=RiskLevel.HIGH,
+            description="Comando de sistema",
+            requires_confirmation=True,
+            max_daily_uses=10
+        ),
+        "delete_file": CommandPolicy(
+            pattern=r"^(deletar?|apagar?|remover?)\s+.+$",
+            risk_level=RiskLevel.HIGH,
+            description="Deleção de arquivo",
+            requires_confirmation=True,
+            max_daily_uses=20
+        ),
+    }
+    
+    def __init__(self):
+        self.daily_usage = {}  # {command_name: {date: count}}
+        self.blocked_attempts = []  # Log de tentativas bloqueadas
+        self._compile_patterns()
+    
+    def _compile_patterns(self):
+        """Pré-compila regex para performance."""
+        self.blocked_regex = [re.compile(p, re.IGNORECASE) for p in self.BLOCKED_PATTERNS]
+        self.allowed_regex = {
+            name: re.compile(policy.pattern, re.IGNORECASE)
+            for name, policy in self.ALLOWED_COMMANDS.items()
+        }
+    
+    def check_command(self, command: str, user_id: str = "default") -> tuple[bool, str, RiskLevel]:
+        """
+        Verifica se um comando pode ser executado.
+        
+        Returns:
+            (allowed: bool, message: str, risk_level: RiskLevel)
+        """
+        command_clean = command.strip().lower()
+        
+        # 1. Verifica blacklist primeiro (SEMPRE bloquear)
+        for regex in self.blocked_regex:
+            if regex.search(command_clean):
+                self._log_blocked(command, user_id, "blacklist_match")
+                return (False, "Comando bloqueado por segurança.", RiskLevel.CRITICAL)
+        
+        # 2. Sanitiza o comando
+        sanitized = self._sanitize(command_clean)
+        if sanitized != command_clean:
+            logger.warning(f"Comando sanitizado: '{command_clean}' → '{sanitized}'")
+        
+        # 3. Verifica whitelist
+        for name, regex in self.allowed_regex.items():
+            if regex.match(sanitized):
+                policy = self.ALLOWED_COMMANDS[name]
+                
+                # Verifica limite diário
+                if not self._check_daily_limit(name, policy.max_daily_uses):
+                    return (False, f"Limite diário atingido para '{name}'.", policy.risk_level)
+                
+                # Incrementa contador
+                self._increment_usage(name)
+                
+                return (True, policy.description, policy.risk_level)
+        
+        # 4. Comando não reconhecido - análise contextual
+        return self._analyze_unknown_command(sanitized, user_id)
+    
+    def _sanitize(self, command: str) -> str:
+        """Remove caracteres potencialmente perigosos."""
+        # Remove caracteres de controle
+        sanitized = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', command)
+        
+        # Remove tentativas de escape
+        sanitized = sanitized.replace('\\', '')
+        
+        # Limita tamanho
+        sanitized = sanitized[:500]
+        
+        # Remove múltiplos espaços
+        sanitized = re.sub(r'\s+', ' ', sanitized)
+        
+        return sanitized.strip()
+    
+    def _check_daily_limit(self, command_name: str, max_uses: int) -> bool:
+        """Verifica limite diário de uso."""
+        if max_uses == -1:
+            return True
+        
+        today = datetime.now().date().isoformat()
+        usage = self.daily_usage.get(command_name, {}).get(today, 0)
+        
+        return usage < max_uses
+    
+    def _increment_usage(self, command_name: str):
+        """Incrementa contador de uso diário."""
+        today = datetime.now().date().isoformat()
+        
+        if command_name not in self.daily_usage:
+            self.daily_usage[command_name] = {}
+        
+        if today not in self.daily_usage[command_name]:
+            self.daily_usage[command_name][today] = 0
+        
+        self.daily_usage[command_name][today] += 1
+    
+    def _log_blocked(self, command: str, user_id: str, reason: str):
+        """Registra tentativa bloqueada para auditoria."""
+        entry = {
+            "timestamp": datetime.now().isoformat(),
+            "user_id": user_id,
+            "command": command[:200],  # Trunca para segurança
+            "reason": reason,
+            "ip": "local"  # Poderia capturar IP real
+        }
+        self.blocked_attempts.append(entry)
+        logger.warning(f"BLOCKED: {entry}")
+        
+        # Alerta se muitas tentativas
+        recent_blocks = [
+            b for b in self.blocked_attempts
+            if datetime.fromisoformat(b["timestamp"]) > datetime.now() - timedelta(minutes=5)
+        ]
+        
+        if len(recent_blocks) > 10:
+            logger.critical(f"ALERT: {len(recent_blocks)} blocked attempts in 5 minutes!")
+            # Poderia enviar notificação/webhook aqui
+    
+    def _analyze_unknown_command(
+        self, 
+        command: str, 
+        user_id: str
+    ) -> tuple[bool, str, RiskLevel]:
+        """Analisa comando desconhecido com heurísticas."""
+        
+        # Heurísticas de risco
+        risk_indicators = [
+            (r"http[s]?://", 0.3),     # URLs
+            (r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", 0.5),  # IPs
+            (r"[;&|`$]", 0.7),          # Shell operators
+            (r"password|senha|key|token|secret", 0.8),  # Sensitive words
+            (r"sudo|admin|root", 0.9),  # Privilege escalation
+        ]
+        
+        risk_score = 0.0
+        for pattern, weight in risk_indicators:
+            if re.search(pattern, command, re.IGNORECASE):
+                risk_score = max(risk_score, weight)
+        
+        if risk_score > 0.7:
+            self._log_blocked(command, user_id, f"high_risk_score:{risk_score}")
+            return (False, "Comando não reconhecido com risco elevado.", RiskLevel.HIGH)
+        
+        if risk_score > 0.4:
+            return (True, "Comando desconhecido - processando com cautela.", RiskLevel.MEDIUM)
+        
+        return (True, "Comando será processado pelo LLM.", RiskLevel.LOW)
+
+
+class InputSanitizer:
+    """Sanitiza todas as entradas do usuário."""
+    
+    # Caracteres permitidos em comandos de voz
+    ALLOWED_CHARS = set(
+        "abcdefghijklmnopqrstuvwxyz"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "0123456789"
+        "àáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"
+        "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ"
+        " .,!?-_'\"()"
+    )
+    
+    @classmethod
+    def sanitize_voice_input(cls, text: str) -> str:
+        """Sanitiza entrada de voz."""
+        if not text:
+            return ""
+        
+        # Remove caracteres não permitidos
+        sanitized = ''.join(c for c in text if c in cls.ALLOWED_CHARS)
+        
+        # Normaliza espaços
+        sanitized = ' '.join(sanitized.split())
+        
+        # Limita tamanho
+        return sanitized[:1000]
+    
+    @classmethod
+    def sanitize_path(cls, path: str) -> Optional[str]:
+        """Sanitiza caminho de arquivo."""
+        if not path:
+            return None
+        
+        # Remove traversal attempts
+        dangerous_patterns = ['..', '~', '%', '\x00']
+        for pattern in dangerous_patterns:
+            if pattern in path:
+                logger.warning(f"Path traversal attempt blocked: {path}")
+                return None
+        
+        # Normaliza separadores
+        path = path.replace('/', '\\')
+        
+        return path
+    
+    @classmethod
+    def sanitize_url(cls, url: str) -> Optional[str]:
+        """Sanitiza URL (mais detalhes na seção Web Fetch)."""
+        from urllib.parse import urlparse
+        
+        try:
+            parsed = urlparse(url)
+            
+            # Apenas HTTP/HTTPS
+            if parsed.scheme not in ['http', 'https']:
+                return None
+            
+            # Bloqueia localhost/IPs internos
+            blocked_hosts = ['localhost', '127.0.0.1', '0.0.0.0', '::1']
+            if parsed.hostname in blocked_hosts:
+                return None
+            
+            # Bloqueia ranges privados
+            if parsed.hostname:
+                parts = parsed.hostname.split('.')
+                if len(parts) == 4:
+                    try:
+                        first = int(parts[0])
+                        if first in [10, 192, 172]:  # Private ranges
+                            return None
+                    except:
+                        pass
+            
+            return url
+        except:
+            return None
+```
+
+### 4.3 Implementação: Encryption Manager
+
+```python
+# Proposta: src/openclaw/security/encryption.py
+
+import os
+import base64
+import hashlib
+import secrets
+from pathlib import Path
+from typing import Optional
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.backends import default_backend
+import keyring
+import logging
+
+logger = logging.getLogger(__name__)
+
+class EncryptionManager:
+    """
+    Gerenciador de criptografia para dados sensíveis.
+    Usa AES-256 via Fernet + OS keychain para chaves.
+    """
+    
+    SERVICE_NAME = "OpenClaw"
+    KEY_NAME = "master_key"
+    
+    def __init__(self, user_id: str = "default"):
+        self.user_id = user_id
+        self._fernet = None
+        self._initialize_key()
+    
+    def _initialize_key(self):
+        """Inicializa ou recupera a chave mestre do OS keychain."""
+        try:
+            # Tenta recuperar chave existente
+            stored_key = keyring.get_password(self.SERVICE_NAME, self.KEY_NAME)
+            
+            if stored_key:
+                self._fernet = Fernet(stored_key.encode())
+                logger.debug("Master key loaded from keychain")
+            else:
+                # Gera nova chave
+                new_key = Fernet.generate_key()
+                keyring.set_password(self.SERVICE_NAME, self.KEY_NAME, new_key.decode())
+                self._fernet = Fernet(new_key)
+                logger.info("New master key generated and stored")
+                
+        except Exception as e:
+            logger.error(f"Keychain error: {e}. Using derived key.")
+            # Fallback: deriva chave de identificador único da máquina
+            self._fernet = self._derive_fallback_key()
+    
+    def _derive_fallback_key(self) -> Fernet:
+        """Deriva chave de fallback do machine ID."""
+        import uuid
+        
+        # Usa MAC address + hostname como seed
+        machine_id = f"{uuid.getnode()}-{os.name}-{self.user_id}"
+        
+        salt = b"openclaw_salt_v1"  # Salt fixo (ok para fallback)
+        
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=salt,
+            iterations=480000,
+            backend=default_backend()
+        )
+        
+        key = base64.urlsafe_b64encode(kdf.derive(machine_id.encode()))
+        return Fernet(key)
+    
+    def encrypt(self, data: str) -> str:
+        """Criptografa string retornando base64."""
+        if not data:
+            return ""
+        
+        encrypted = self._fernet.encrypt(data.encode())
+        return base64.urlsafe_b64encode(encrypted).decode()
+    
+    def decrypt(self, encrypted_data: str) -> Optional[str]:
+        """Descriptografa string."""
+        if not encrypted_data:
+            return None
+        
+        try:
+            decoded = base64.urlsafe_b64decode(encrypted_data.encode())
+            decrypted = self._fernet.decrypt(decoded)
+            return decrypted.decode()
+        except Exception as e:
+            logger.error(f"Decryption failed: {e}")
+            return None
+    
+    def encrypt_file(self, filepath: Path) -> bool:
+        """Criptografa arquivo in-place."""
+        try:
+            content = filepath.read_bytes()
+            encrypted = self._fernet.encrypt(content)
+            
+            # Salva com extensão .enc
+            encrypted_path = filepath.with_suffix(filepath.suffix + '.enc')
+            encrypted_path.write_bytes(encrypted)
+            
+            # Remove original (seguro)
+            filepath.unlink()
+            
+            logger.info(f"File encrypted: {filepath} → {encrypted_path}")
+            return True
+        except Exception as e:
+            logger.error(f"File encryption failed: {e}")
+            return False
+    
+    def decrypt_file(self, encrypted_path: Path) -> Optional[Path]:
+        """Descriptografa arquivo."""
+        try:
+            content = encrypted_path.read_bytes()
+            decrypted = self._fernet.decrypt(content)
+            
+            # Remove .enc da extensão
+            if encrypted_path.suffix == '.enc':
+                original_path = encrypted_path.with_suffix('')
+            else:
+                original_path = encrypted_path.with_suffix('.dec')
+            
+            original_path.write_bytes(decrypted)
+            
+            logger.info(f"File decrypted: {encrypted_path} → {original_path}")
+            return original_path
+        except Exception as e:
+            logger.error(f"File decryption failed: {e}")
+            return None
+    
+    def hash_sensitive(self, data: str) -> str:
+        """Gera hash seguro para dados sensíveis (não reversível)."""
+        salt = secrets.token_bytes(16)
+        
+        hash_bytes = hashlib.pbkdf2_hmac(
+            'sha256',
+            data.encode(),
+            salt,
+            iterations=100000
+        )
+        
+        # Retorna salt + hash concatenados
+        return base64.urlsafe_b64encode(salt + hash_bytes).decode()
+    
+    def verify_hash(self, data: str, stored_hash: str) -> bool:
+        """Verifica se dados correspondem ao hash."""
+        try:
+            decoded = base64.urlsafe_b64decode(stored_hash.encode())
+            salt = decoded[:16]
+            original_hash = decoded[16:]
+            
+            new_hash = hashlib.pbkdf2_hmac(
+                'sha256',
+                data.encode(),
+                salt,
+                iterations=100000
+            )
+            
+            return secrets.compare_digest(original_hash, new_hash)
+        except:
+            return False
+
+
+class SecureConfig:
+    """Gerenciador de configurações sensíveis."""
+    
+    def __init__(self, config_path: Path = None):
+        self.config_path = config_path or Path("./config/secrets.enc")
+        self.encryption = EncryptionManager()
+        self._cache = {}
+    
+    def set(self, key: str, value: str):
+        """Armazena valor criptografado."""
+        self._cache[key] = self.encryption.encrypt(value)
+        self._save()
+    
+    def get(self, key: str) -> Optional[str]:
+        """Recupera valor descriptografado."""
+        if key not in self._cache:
+            self._load()
+        
+        encrypted = self._cache.get(key)
+        if encrypted:
+            return self.encryption.decrypt(encrypted)
+        return None
+    
+    def _save(self):
+        """Salva configurações criptografadas."""
+        import json
+        
+        self.config_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        data = json.dumps(self._cache)
+        encrypted = self.encryption.encrypt(data)
+        
+        self.config_path.write_text(encrypted)
+    
+    def _load(self):
+        """Carrega configurações."""
+        import json
+        
+        if self.config_path.exists():
+            encrypted = self.config_path.read_text()
+            decrypted = self.encryption.decrypt(encrypted)
+            
+            if decrypted:
+                self._cache = json.loads(decrypted)
+```
+
+### 4.4 Implementação: Audit Logger
+
+```python
+# Proposta: src/openclaw/security/audit.py
+
+import json
+import hashlib
+import logging
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, Any, Optional
+from dataclasses import dataclass, asdict
+from enum import Enum
+import threading
+import queue
+
+class AuditEventType(Enum):
+    COMMAND_EXECUTED = "command_executed"
+    COMMAND_BLOCKED = "command_blocked"
+    AUTH_SUCCESS = "auth_success"
+    AUTH_FAILURE = "auth_failure"
+    DATA_ACCESS = "data_access"
+    CONFIG_CHANGE = "config_change"
+    ERROR = "error"
+    SECURITY_ALERT = "security_alert"
+    WEB_ACCESS = "web_access"
+    FILE_OPERATION = "file_operation"
+
+@dataclass
+class AuditEvent:
+    timestamp: str
+    event_type: AuditEventType
+    user_id: str
+    action: str
+    details: Dict[str, Any]
+    risk_level: str
+    success: bool
+    source_ip: str = "local"
+    session_id: str = ""
+    previous_hash: str = ""  # Para chain de integridade
+    
+    def to_dict(self) -> dict:
+        d = asdict(self)
+        d['event_type'] = self.event_type.value
+        return d
+    
+    def compute_hash(self) -> str:
+        """Computa hash do evento para integridade."""
+        data = json.dumps(self.to_dict(), sort_keys=True)
+        return hashlib.sha256(data.encode()).hexdigest()
+
+class AuditLogger:
+    """
+    Sistema de auditoria imutável com chain de integridade.
+    Logs não podem ser alterados sem detecção.
+    """
+    
+    def __init__(self, log_dir: Path = None):
+        self.log_dir = log_dir or Path("./logs/audit")
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+        
+        self._last_hash = "genesis"
+        self._queue = queue.Queue()
+        self._lock = threading.Lock()
+        
+        # Writer thread para I/O assíncrono
+        self._writer_thread = threading.Thread(target=self._writer_loop, daemon=True)
+        self._writer_thread.start()
+        
+        self._load_last_hash()
+    
+    def _load_last_hash(self):
+        """Carrega último hash para continuar a chain."""
+        today_file = self._get_log_file()
+        
+        if today_file.exists():
+            try:
+                lines = today_file.read_text().strip().split('\n')
+                if lines:
+                    last_event = json.loads(lines[-1])
+                    # Recomputa hash para verificar integridade
+                    event = AuditEvent(**last_event)
+                    event.event_type = AuditEventType(event.event_type)
+                    self._last_hash = event.compute_hash()
+            except:
+                pass
+    
+    def _get_log_file(self) -> Path:
+        """Retorna arquivo de log do dia atual."""
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        return self.log_dir / f"audit_{date_str}.jsonl"
+    
+    def log(
+        self,
+        event_type: AuditEventType,
+        user_id: str,
+        action: str,
+        details: Dict[str, Any] = None,
+        risk_level: str = "low",
+        success: bool = True,
+        session_id: str = ""
+    ):
+        """Registra evento de auditoria."""
+        event = AuditEvent(
+            timestamp=datetime.now().isoformat(),
+            event_type=event_type,
+            user_id=user_id,
+            action=action,
+            details=details or {},
+            risk_level=risk_level,
+            success=success,
+            session_id=session_id,
+            previous_hash=self._last_hash
+        )
+        
+        # Adiciona à queue para escrita assíncrona
+        self._queue.put(event)
+    
+    def _writer_loop(self):
+        """Loop de escrita em background."""
+        while True:
+            try:
+                event = self._queue.get(timeout=1.0)
+                self._write_event(event)
+            except queue.Empty:
+                continue
+            except Exception as e:
+                logging.error(f"Audit write error: {e}")
+    
+    def _write_event(self, event: AuditEvent):
+        """Escreve evento no arquivo de log."""
+        with self._lock:
+            log_file = self._get_log_file()
+            
+            # Atualiza hash da chain
+            self._last_hash = event.compute_hash()
+            
+            # Append ao arquivo (imutável)
+            with open(log_file, 'a', encoding='utf-8') as f:
+                f.write(json.dumps(event.to_dict()) + '\n')
+    
+    def verify_integrity(self, log_file: Path = None) -> tuple[bool, str]:
+        """Verifica integridade da chain de logs."""
+        log_file = log_file or self._get_log_file()
+        
+        if not log_file.exists():
+            return True, "No logs to verify"
+        
+        try:
+            lines = log_file.read_text().strip().split('\n')
+            previous_hash = "genesis"
+            
+            for i, line in enumerate(lines):
+                event_dict = json.loads(line)
+                
+                # Verifica se previous_hash bate
+                if event_dict['previous_hash'] != previous_hash:
+                    return False, f"Chain broken at line {i+1}"
+                
+                # Atualiza hash para próximo
+                event = AuditEvent(**event_dict)
+                event.event_type = AuditEventType(event.event_type)
+                previous_hash = event.compute_hash()
+            
+            return True, f"Integrity verified: {len(lines)} events"
+            
+        except Exception as e:
+            return False, f"Verification error: {e}"
+    
+    def get_recent_alerts(self, minutes: int = 60) -> list:
+        """Retorna alertas de segurança recentes."""
+        log_file = self._get_log_file()
+        alerts = []
+        
+        if not log_file.exists():
+            return alerts
+        
+        cutoff = datetime.now().timestamp() - (minutes * 60)
+        
+        for line in log_file.read_text().strip().split('\n'):
+            try:
+                event = json.loads(line)
+                event_time = datetime.fromisoformat(event['timestamp']).timestamp()
+                
+                if event_time > cutoff and event['event_type'] == 'security_alert':
+                    alerts.append(event)
+            except:
+                continue
+        
+        return alerts
+
+
+# Singleton global para auditoria
+_audit_logger = None
+
+def get_audit_logger() -> AuditLogger:
+    global _audit_logger
+    if _audit_logger is None:
+        _audit_logger = AuditLogger()
+    return _audit_logger
+
+def audit_log(event_type: AuditEventType, **kwargs):
+    """Função conveniente para logging de auditoria."""
+    get_audit_logger().log(event_type, **kwargs)
+```
+
+### 4.5 Rate Limiting & DDoS Protection
+
+```python
+# Proposta: src/openclaw/security/rate_limiter.py
+
+import time
+from collections import defaultdict
+from dataclasses import dataclass
+from typing import Dict, Tuple
+import threading
+
+@dataclass
+class RateLimitConfig:
+    requests_per_minute: int = 60
+    requests_per_hour: int = 1000
+    burst_limit: int = 10  # Máximo em 1 segundo
+    cooldown_seconds: int = 60  # Tempo de bloqueio após exceder
+
+class RateLimiter:
+    """
+    Rate limiter com múltiplas janelas temporais.
+    Protege contra abuso e DDoS.
+    """
+    
+    def __init__(self, config: RateLimitConfig = None):
+        self.config = config or RateLimitConfig()
+        self._requests: Dict[str, list] = defaultdict(list)
+        self._blocked: Dict[str, float] = {}  # user_id → unblock_time
+        self._lock = threading.Lock()
+    
+    def check(self, user_id: str) -> Tuple[bool, str]:
+        """
+        Verifica se usuário pode fazer requisição.
+        
+        Returns:
+            (allowed: bool, message: str)
+        """
+        with self._lock:
+            now = time.time()
+            
+            # Verifica se está bloqueado
+            if user_id in self._blocked:
+                if now < self._blocked[user_id]:
+                    wait_time = int(self._blocked[user_id] - now)
+                    return False, f"Rate limited. Aguarde {wait_time}s."
+                else:
+                    del self._blocked[user_id]
+            
+            # Limpa requisições antigas (> 1 hora)
+            self._requests[user_id] = [
+                ts for ts in self._requests[user_id]
+                if now - ts < 3600
+            ]
+            
+            requests = self._requests[user_id]
+            
+            # Verifica burst (último segundo)
+            recent_second = sum(1 for ts in requests if now - ts < 1)
+            if recent_second >= self.config.burst_limit:
+                self._block_user(user_id, now)
+                return False, "Burst limit exceeded."
+            
+            # Verifica por minuto
+            recent_minute = sum(1 for ts in requests if now - ts < 60)
+            if recent_minute >= self.config.requests_per_minute:
+                self._block_user(user_id, now)
+                return False, "Minute limit exceeded."
+            
+            # Verifica por hora
+            if len(requests) >= self.config.requests_per_hour:
+                self._block_user(user_id, now, duration=3600)
+                return False, "Hour limit exceeded."
+            
+            # Registra requisição
+            self._requests[user_id].append(now)
+            
+            return True, "OK"
+    
+    def _block_user(self, user_id: str, now: float, duration: int = None):
+        """Bloqueia usuário temporariamente."""
+        duration = duration or self.config.cooldown_seconds
+        self._blocked[user_id] = now + duration
+    
+    def get_stats(self, user_id: str) -> dict:
+        """Retorna estatísticas de uso."""
+        now = time.time()
+        requests = self._requests.get(user_id, [])
+        
+        return {
+            "requests_last_minute": sum(1 for ts in requests if now - ts < 60),
+            "requests_last_hour": len([ts for ts in requests if now - ts < 3600]),
+            "is_blocked": user_id in self._blocked,
+            "limits": {
+                "per_minute": self.config.requests_per_minute,
+                "per_hour": self.config.requests_per_hour,
+                "burst": self.config.burst_limit
+            }
+        }
+```
+
+---
+
+## 🧠 PARTE 5: SISTEMA DE APRENDIZADO DE ROTINA
+
+### 5.1 Visão Geral do Routine Learning
+
+O OpenClaw aprende com o comportamento do usuário para **agir proativamente** sem ser solicitado.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    ROUTINE LEARNING PIPELINE                        │
+└─────────────────────────────────────────────────────────────────────┘
+
+   Ação do Usuário          Análise               Padrão Detectado
+        │                     │                        │
+        ▼                     ▼                        ▼
+┌─────────────┐      ┌─────────────┐      ┌─────────────────────────┐
+│  "Abre VS   │      │  Pattern    │      │ Segunda-feira 9h        │
+│   Code"     │─────▶│  Detector   │─────▶│ sempre abre VSCode      │
+│  (9h, Seg)  │      │             │      │ + Chrome + Terminal     │
+└─────────────┘      └─────────────┘      └─────────────────────────┘
+                            │
+                            ▼
+                    ┌─────────────┐
+                    │  Confidence │
+                    │  Calculator │
+                    └──────┬──────┘
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+              ▼                         ▼
+    Confiança < 80%           Confiança >= 80%
+    ┌─────────────┐           ┌─────────────────┐
+    │ Continua    │           │ Propõe ação:    │
+    │ aprendendo  │           │ "Quer que eu    │
+    └─────────────┘           │ abra VSCode?"   │
+                              └─────────────────┘
+                                      │
+                              ┌───────┴───────┐
+                              │               │
+                              ▼               ▼
+                         Usuário          Usuário
+                         aceita           recusa
+                              │               │
+                              ▼               ▼
+                    ┌─────────────┐  ┌─────────────┐
+                    │ Aumenta     │  │ Reduz       │
+                    │ confiança   │  │ confiança   │
+                    │ +10%        │  │ -20%        │
+                    └─────────────┘  └─────────────┘
+```
+
+### 5.2 Implementação: Pattern Detector
+
+```python
+# Proposta: src/openclaw/learning/routine_detector.py
+
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Tuple
+from collections import defaultdict
+import json
+from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
+
+@dataclass
+class ActionRecord:
+    """Registro de uma ação do usuário."""
+    action: str              # Ex: "open_app:vscode"
+    timestamp: datetime
+    day_of_week: int         # 0=Segunda, 6=Domingo
+    hour: int                # 0-23
+    minute: int              # 0-59
+    context: Dict = field(default_factory=dict)  # Metadados extras
+    
+    def to_dict(self) -> dict:
+        return {
+            "action": self.action,
+            "timestamp": self.timestamp.isoformat(),
+            "day_of_week": self.day_of_week,
+            "hour": self.hour,
+            "minute": self.minute,
+            "context": self.context
+        }
+    
+    @classmethod
+    def from_dict(cls, data: dict) -> 'ActionRecord':
+        data['timestamp'] = datetime.fromisoformat(data['timestamp'])
+        return cls(**data)
+
+@dataclass
+class RoutinePattern:
+    """Padrão de rotina detectado."""
+    action: str
+    day_of_week: Optional[int]  # None = qualquer dia
+    hour: int
+    minute_range: Tuple[int, int]  # Ex: (0, 15) = entre :00 e :15
+    confidence: float  # 0.0 - 1.0
+    occurrences: int
+    last_triggered: Optional[datetime] = None
+    user_feedback_positive: int = 0
+    user_feedback_negative: int = 0
+    
+    @property
+    def adjusted_confidence(self) -> float:
+        """Confiança ajustada pelo feedback do usuário."""
+        feedback_boost = (self.user_feedback_positive - self.user_feedback_negative * 2) * 0.05
+        return max(0.0, min(1.0, self.confidence + feedback_boost))
+    
+    def matches_time(self, dt: datetime) -> bool:
+        """Verifica se datetime bate com o padrão."""
+        if self.day_of_week is not None and dt.weekday() != self.day_of_week:
+            return False
+        
+        if dt.hour != self.hour:
+            return False
+        
+        if not (self.minute_range[0] <= dt.minute <= self.minute_range[1]):
+            return False
+        
+        return True
+
+class RoutineDetector:
+    """
+    Detecta padrões de rotina do usuário.
+    Aprende quando o usuário faz ações repetidas.
+    """
+    
+    MIN_OCCURRENCES = 3      # Mínimo de ocorrências para detectar padrão
+    MIN_CONFIDENCE = 0.6     # Confiança mínima para considerar padrão
+    SUGGEST_THRESHOLD = 0.8  # Confiança para sugerir ação
+    TIME_WINDOW_MINUTES = 15 # Janela de tempo para agrupar ações
+    
+    def __init__(self, data_path: Path = None):
+        self.data_path = data_path or Path("./data/routines")
+        self.data_path.mkdir(parents=True, exist_ok=True)
+        
+        self.actions: List[ActionRecord] = []
+        self.patterns: List[RoutinePattern] = []
+        
+        self._load_data()
+    
+    def record_action(self, action: str, context: Dict = None):
+        """Registra uma ação do usuário."""
+        now = datetime.now()
+        
+        record = ActionRecord(
+            action=action,
+            timestamp=now,
+            day_of_week=now.weekday(),
+            hour=now.hour,
+            minute=now.minute,
+            context=context or {}
+        )
+        
+        self.actions.append(record)
+        self._save_data()
+        
+        # Re-analisa padrões
+        self._analyze_patterns()
+        
+        logger.debug(f"Action recorded: {action} at {now}")
+    
+    def get_suggestions(self) -> List[Tuple[RoutinePattern, str]]:
+        """
+        Retorna sugestões de ações baseadas na hora atual.
+        
+        Returns:
+            Lista de (pattern, suggested_message)
+        """
+        now = datetime.now()
+        suggestions = []
+        
+        for pattern in self.patterns:
+            # Verifica se já foi triggered recentemente (evita spam)
+            if pattern.last_triggered:
+                if now - pattern.last_triggered < timedelta(hours=1):
+                    continue
+            
+            # Verifica se bate com hora atual
+            if pattern.matches_time(now):
+                if pattern.adjusted_confidence >= self.SUGGEST_THRESHOLD:
+                    message = self._generate_suggestion_message(pattern)
+                    suggestions.append((pattern, message))
+        
+        return suggestions
+    
+    def user_accepted(self, pattern: RoutinePattern):
+        """Usuário aceitou a sugestão."""
+        pattern.user_feedback_positive += 1
+        pattern.last_triggered = datetime.now()
+        self._save_data()
+        logger.info(f"Pattern accepted: {pattern.action}, new confidence: {pattern.adjusted_confidence:.2f}")
+    
+    def user_rejected(self, pattern: RoutinePattern):
+        """Usuário rejeitou a sugestão."""
+        pattern.user_feedback_negative += 1
+        pattern.last_triggered = datetime.now()
+        self._save_data()
+        logger.info(f"Pattern rejected: {pattern.action}, new confidence: {pattern.adjusted_confidence:.2f}")
+    
+    def _analyze_patterns(self):
+        """Analisa ações para detectar padrões."""
+        # Agrupa ações por (action, day, hour_window)
+        grouped = defaultdict(list)
+        
+        for record in self.actions:
+            # Arredonda minuto para janela de 15 min
+            minute_window = (record.minute // self.TIME_WINDOW_MINUTES) * self.TIME_WINDOW_MINUTES
+            
+            key = (record.action, record.day_of_week, record.hour, minute_window)
+            grouped[key].append(record)
+        
+        # Converte grupos em padrões
+        new_patterns = []
+        
+        for (action, day, hour, minute_window), records in grouped.items():
+            occurrences = len(records)
+            
+            if occurrences >= self.MIN_OCCURRENCES:
+                # Calcula confiança baseada em consistência
+                # Mais ocorrências e menos variação = mais confiança
+                weeks_with_data = len(set(r.timestamp.isocalendar()[1] for r in records))
+                consistency = occurrences / max(weeks_with_data, 1)
+                
+                confidence = min(1.0, consistency * 0.3 + (occurrences / 10) * 0.4)
+                
+                # Verifica se já existe padrão similar
+                existing = self._find_existing_pattern(action, day, hour, minute_window)
+                
+                if existing:
+                    # Atualiza existente
+                    existing.confidence = confidence
+                    existing.occurrences = occurrences
+                    new_patterns.append(existing)
+                else:
+                    # Cria novo
+                    pattern = RoutinePattern(
+                        action=action,
+                        day_of_week=day,
+                        hour=hour,
+                        minute_range=(minute_window, minute_window + self.TIME_WINDOW_MINUTES - 1),
+                        confidence=confidence,
+                        occurrences=occurrences
+                    )
+                    new_patterns.append(pattern)
+        
+        self.patterns = new_patterns
+        logger.debug(f"Patterns analyzed: {len(self.patterns)} patterns found")
+    
+    def _find_existing_pattern(
+        self, 
+        action: str, 
+        day: int, 
+        hour: int, 
+        minute_window: int
+    ) -> Optional[RoutinePattern]:
+        """Encontra padrão existente similar."""
+        for p in self.patterns:
+            if (p.action == action and 
+                p.day_of_week == day and 
+                p.hour == hour and 
+                p.minute_range[0] == minute_window):
+                return p
+        return None
+    
+    def _generate_suggestion_message(self, pattern: RoutinePattern) -> str:
+        """Gera mensagem de sugestão amigável."""
+        action_parts = pattern.action.split(':')
+        action_type = action_parts[0]
+        action_target = action_parts[1] if len(action_parts) > 1 else ""
+        
+        day_names = ["segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"]
+        day_str = day_names[pattern.day_of_week] if pattern.day_of_week is not None else "esse horário"
+        
+        templates = {
+            "open_app": f"Percebi que você costuma abrir o {action_target} por volta desse horário nas {day_str}s. Quer que eu abra?",
+            "open_url": f"Você costuma acessar {action_target} nesse horário. Devo abrir?",
+            "play_music": f"Hora da música? Costumo tocar suas playlists nesse horário nas {day_str}s.",
+            "workflow": f"Quer que eu execute a rotina '{action_target}'? Você costuma fazer isso agora.",
+        }
+        
+        return templates.get(action_type, f"Detectei que você costuma executar '{pattern.action}' agora. Devo fazer isso?")
+    
+    def _save_data(self):
+        """Salva dados em disco."""
+        data = {
+            "actions": [a.to_dict() for a in self.actions[-1000:]],  # Mantém últimas 1000
+            "patterns": [vars(p) for p in self.patterns]
+        }
+        
+        filepath = self.data_path / "routines.json"
+        filepath.write_text(json.dumps(data, indent=2, default=str))
+    
+    def _load_data(self):
+        """Carrega dados do disco."""
+        filepath = self.data_path / "routines.json"
+        
+        if filepath.exists():
+            try:
+                data = json.loads(filepath.read_text())
+                self.actions = [ActionRecord.from_dict(a) for a in data.get("actions", [])]
+                self.patterns = [RoutinePattern(**p) for p in data.get("patterns", [])]
+                logger.info(f"Loaded {len(self.actions)} actions and {len(self.patterns)} patterns")
+            except Exception as e:
+                logger.error(f"Error loading routine data: {e}")
+
+
+class ProactiveLearningEngine:
+    """
+    Motor que combina detecção de rotinas com ações proativas.
+    Integra com o assistente de voz.
+    """
+    
+    def __init__(self):
+        self.detector = RoutineDetector()
+        self.pending_suggestions: Dict[str, RoutinePattern] = {}
+    
+    async def on_user_action(self, action: str, context: Dict = None):
+        """Chamado quando usuário executa uma ação."""
+        self.detector.record_action(action, context)
+    
+    async def check_suggestions(self) -> Optional[str]:
+        """
+        Verifica se há sugestões para fazer.
+        Chamado periodicamente pelo agente.
+        """
+        suggestions = self.detector.get_suggestions()
+        
+        if suggestions:
+            # Retorna a sugestão de maior confiança
+            best = max(suggestions, key=lambda x: x[0].adjusted_confidence)
+            pattern, message = best
+            
+            # Guarda para processar resposta
+            suggestion_id = f"{pattern.action}_{pattern.hour}"
+            self.pending_suggestions[suggestion_id] = pattern
+            
+            return message
+        
+        return None
+    
+    async def process_response(self, response: str, suggestion_id: str):
+        """Processa resposta do usuário para sugestão."""
+        pattern = self.pending_suggestions.get(suggestion_id)
+        
+        if not pattern:
+            return
+        
+        # Detecta se aceitou ou recusou
+        positive_words = ["sim", "pode", "ok", "claro", "vai", "quero", "yes", "sure"]
+        negative_words = ["não", "nao", "agora não", "depois", "no", "nope"]
+        
+        response_lower = response.lower()
+        
+        if any(word in response_lower for word in positive_words):
+            self.detector.user_accepted(pattern)
+            return True  # Executar ação
+        elif any(word in response_lower for word in negative_words):
+            self.detector.user_rejected(pattern)
+            return False
+        
+        return None  # Resposta ambígua
+```
+
+### 5.3 Configuração de Limites de Proatividade
+
+```python
+# Proposta: src/openclaw/learning/proactive_config.py
+
+@dataclass
+class ProactiveConfig:
+    """Configurações de comportamento proativo."""
+    
+    # Quando sugerir
+    suggestion_confidence_threshold: float = 0.8  # 80%+ para sugerir
+    
+    # Limites de sugestões
+    max_suggestions_per_hour: int = 3
+    max_suggestions_per_day: int = 10
+    
+    # Horários permitidos
+    quiet_hours_start: int = 22  # 22:00
+    quiet_hours_end: int = 7     # 07:00
+    
+    # Ações automáticas (sem perguntar)
+    auto_execute_threshold: float = 0.95  # 95%+ para auto-executar
+    allowed_auto_actions: List[str] = field(default_factory=lambda: [
+        "open_app",      # Abrir apps
+        "play_music",    # Tocar música
+        "workflow:*",    # Workflows aprovados
+    ])
+    
+    # Ações que NUNCA são automáticas
+    never_auto_actions: List[str] = field(default_factory=lambda: [
+        "delete_*",      # Deletar qualquer coisa
+        "send_*",        # Enviar mensagens/emails
+        "purchase_*",    # Compras
+        "system_*",      # Comandos de sistema
+    ])
+```
+
+---
+
+## 🌐 PARTE 6: WEB FETCH SEGURO
+
+### 6.1 Visão Geral do Safe Web Access
+
+O OpenClaw pode acessar a internet de forma segura, bloqueando sites maliciosos.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    SAFE WEB FETCH PIPELINE                          │
+└─────────────────────────────────────────────────────────────────────┘
+
+  Requisição                Validação              Fetch Seguro
+      │                        │                       │
+      ▼                        ▼                       ▼
+┌─────────────┐      ┌─────────────────┐      ┌─────────────────┐
+│ fetch_url   │      │ URL Validator   │      │ Sandboxed       │
+│ ("site.com")│─────▶│ ├── Blocklist   │─────▶│ HTTP Client     │
+│             │      │ ├── Safe Browse │      │ ├── Timeout     │
+│             │      │ └── DNS Check   │      │ ├── Size Limit  │
+└─────────────┘      └─────────────────┘      │ └── No Redirect │
+                            │                 └─────────────────┘
+                     ┌──────┴──────┐                   │
+                     │             │                   ▼
+                     ▼             ▼           ┌─────────────────┐
+              URL Bloqueada   URL Segura       │ Content         │
+              ┌──────────┐   ┌──────────┐      │ Sanitizer       │
+              │ "Site    │   │ Procede  │      │ ├── HTML Clean  │
+              │ suspeito │   │ com fetch│      │ ├── Script Rem  │
+              │ bloqueado"   └──────────┘      │ └── Size Trim   │
+              └──────────┘                     └─────────────────┘
+                                                       │
+                                                       ▼
+                                               ┌─────────────────┐
+                                               │ Safe Response   │
+                                               │ (text only)     │
+                                               └─────────────────┘
+```
+
+### 6.2 Implementação: SafeWebFetcher
+
+```python
+# Proposta: src/openclaw/web/safe_fetcher.py
+
+import asyncio
+import aiohttp
+import re
+import hashlib
+import logging
+from urllib.parse import urlparse, urljoin
+from typing import Optional, Dict, List, Tuple
+from dataclasses import dataclass
+from pathlib import Path
+from datetime import datetime, timedelta
+import ssl
+from bs4 import BeautifulSoup
+
+logger = logging.getLogger(__name__)
+
+@dataclass
+class FetchResult:
+    success: bool
+    url: str
+    content: Optional[str]
+    content_type: str
+    status_code: int
+    error: Optional[str] = None
+    blocked_reason: Optional[str] = None
+    fetch_time_ms: int = 0
+
+class URLValidator:
+    """
+    Valida URLs antes de acessar.
+    Bloqueia sites maliciosos, suspeitos e perigosos.
+    """
+    
+    # Domínios SEMPRE bloqueados
+    BLOCKED_DOMAINS = {
+        # Phishing conhecidos
+        "phishing-site.com", "fake-bank.com",
+        
+        # Malware
+        "malware-download.net",
+        
+        # Trackers agressivos
+        "tracking-scripts.com",
+        
+        # Conteúdo ilegal
+        # (lista seria mais extensa em produção)
+    }
+    
+    # Padrões de URL suspeitos
+    SUSPICIOUS_PATTERNS = [
+        r"\.exe$",                    # Executáveis
+        r"\.bat$", r"\.cmd$",         # Scripts Windows
+        r"\.sh$", r"\.bash$",         # Scripts Unix
+        r"\.ps1$",                    # PowerShell
+        r"\.vbs$", r"\.js$",          # Scripts
+        r"phishing", r"malware",      # Keywords
+        r"free-?money", r"win-?prize", # Scam keywords
+        r"login.*\.(?!com|org|net)",  # Fake logins
+        r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}",  # IPs diretos
+        r"@.*@",                      # Multiple @ (email spoofing)
+        r"\.tk$", r"\.ml$", r"\.ga$", # TLDs de alto risco
+    ]
+    
+    # Categorias bloqueadas
+    BLOCKED_CATEGORIES = {
+        "adult", "gambling", "weapons", "drugs",
+        "hacking", "malware", "phishing", "scam"
+    }
+    
+    def __init__(self):
+        self._blocklist_file = Path("./data/blocklist.txt")
+        self._custom_blocklist: set = set()
+        self._load_blocklist()
+        self._compile_patterns()
+    
+    def _compile_patterns(self):
+        """Pré-compila regex para performance."""
+        self._suspicious_regex = [
+            re.compile(p, re.IGNORECASE) 
+            for p in self.SUSPICIOUS_PATTERNS
+        ]
+    
+    def _load_blocklist(self):
+        """Carrega blocklist customizada."""
+        if self._blocklist_file.exists():
+            self._custom_blocklist = set(
+                line.strip().lower() 
+                for line in self._blocklist_file.read_text().split('\n')
+                if line.strip() and not line.startswith('#')
+            )
+    
+    def add_to_blocklist(self, domain: str):
+        """Adiciona domínio à blocklist."""
+        self._custom_blocklist.add(domain.lower())
+        
+        with open(self._blocklist_file, 'a') as f:
+            f.write(f"\n{domain.lower()}")
+    
+    def validate(self, url: str) -> Tuple[bool, Optional[str]]:
+        """
+        Valida URL.
+        
+        Returns:
+            (is_valid: bool, block_reason: Optional[str])
+        """
+        try:
+            parsed = urlparse(url)
+        except:
+            return False, "URL inválida"
+        
+        # 1. Verifica scheme
+        if parsed.scheme not in ['http', 'https']:
+            return False, f"Scheme não permitido: {parsed.scheme}"
+        
+        # 2. Verifica hostname
+        hostname = parsed.hostname
+        if not hostname:
+            return False, "Hostname não encontrado"
+        
+        hostname_lower = hostname.lower()
+        
+        # 3. Bloqueia localhost e IPs internos
+        if self._is_internal(hostname_lower):
+            return False, "Acesso a rede interna bloqueado"
+        
+        # 4. Verifica blocklist de domínios
+        if hostname_lower in self.BLOCKED_DOMAINS:
+            return False, "Domínio na blocklist global"
+        
+        if hostname_lower in self._custom_blocklist:
+            return False, "Domínio na blocklist customizada"
+        
+        # 5. Verifica padrões suspeitos
+        full_url = url.lower()
+        for regex in self._suspicious_regex:
+            if regex.search(full_url):
+                return False, f"URL contém padrão suspeito"
+        
+        # 6. Verifica TLD de alto risco
+        tld = hostname_lower.split('.')[-1]
+        if tld in ['tk', 'ml', 'ga', 'cf', 'gq']:
+            logger.warning(f"TLD de alto risco: {tld}")
+            # Permite mas com warning (não bloqueia)
+        
+        return True, None
+    
+    def _is_internal(self, hostname: str) -> bool:
+        """Verifica se é endereço interno."""
+        internal_patterns = [
+            'localhost',
+            '127.0.0.1',
+            '0.0.0.0',
+            '::1',
+            '10.',
+            '172.16.', '172.17.', '172.18.', '172.19.',
+            '172.20.', '172.21.', '172.22.', '172.23.',
+            '172.24.', '172.25.', '172.26.', '172.27.',
+            '172.28.', '172.29.', '172.30.', '172.31.',
+            '192.168.',
+            'internal',
+            'intranet',
+        ]
+        
+        return any(hostname.startswith(p) for p in internal_patterns)
+
+
+class ContentSanitizer:
+    """Remove conteúdo potencialmente perigoso de HTML."""
+    
+    # Tags removidas completamente
+    REMOVE_TAGS = [
+        'script', 'style', 'iframe', 'frame', 'object', 
+        'embed', 'form', 'input', 'button', 'select',
+        'textarea', 'noscript', 'applet', 'meta'
+    ]
+    
+    # Atributos removidos
+    REMOVE_ATTRS = [
+        'onclick', 'onload', 'onerror', 'onmouseover',
+        'onfocus', 'onblur', 'onchange', 'onsubmit',
+        'javascript:', 'data:', 'vbscript:'
+    ]
+    
+    @classmethod
+    def sanitize_html(cls, html: str, max_length: int = 50000) -> str:
+        """
+        Sanitiza HTML removendo elementos perigosos.
+        Retorna texto limpo.
+        """
+        if not html:
+            return ""
+        
+        try:
+            soup = BeautifulSoup(html, 'html.parser')
+            
+            # Remove tags perigosas
+            for tag_name in cls.REMOVE_TAGS:
+                for tag in soup.find_all(tag_name):
+                    tag.decompose()
+            
+            # Remove atributos perigosos
+            for tag in soup.find_all(True):
+                for attr in list(tag.attrs.keys()):
+                    attr_lower = attr.lower()
+                    if any(bad in attr_lower for bad in cls.REMOVE_ATTRS):
+                        del tag[attr]
+                    elif attr_lower.startswith('on'):
+                        del tag[attr]
+            
+            # Extrai texto limpo
+            text = soup.get_text(separator='\n', strip=True)
+            
+            # Limita tamanho
+            if len(text) > max_length:
+                text = text[:max_length] + "\n\n[Conteúdo truncado...]"
+            
+            return text
+            
+        except Exception as e:
+            logger.error(f"HTML sanitization error: {e}")
+            return ""
+    
+    @classmethod
+    def extract_links(cls, html: str, base_url: str) -> List[str]:
+        """Extrai links seguros do HTML."""
+        links = []
+        validator = URLValidator()
+        
+        try:
+            soup = BeautifulSoup(html, 'html.parser')
+            
+            for a in soup.find_all('a', href=True):
+                href = a['href']
+                
+                # Converte para URL absoluta
+                full_url = urljoin(base_url, href)
+                
+                # Valida
+                is_valid, _ = validator.validate(full_url)
+                if is_valid:
+                    links.append(full_url)
+            
+            return links[:50]  # Limita a 50 links
+            
+        except:
+            return []
+
+
+class SafeWebFetcher:
+    """
+    Cliente HTTP seguro com múltiplas camadas de proteção.
+    """
+    
+    DEFAULT_TIMEOUT = 10  # segundos
+    MAX_RESPONSE_SIZE = 1 * 1024 * 1024  # 1MB
+    MAX_REDIRECTS = 3
+    
+    # User-Agent inofensivo
+    USER_AGENT = "OpenClaw/1.0 (AI Assistant; +https://github.com/openclaw)"
+    
+    def __init__(self):
+        self.validator = URLValidator()
+        self.sanitizer = ContentSanitizer()
+        self._session: Optional[aiohttp.ClientSession] = None
+    
+    async def _get_session(self) -> aiohttp.ClientSession:
+        """Retorna sessão HTTP reutilizável."""
+        if self._session is None or self._session.closed:
+            # SSL context seguro
+            ssl_context = ssl.create_default_context()
+            
+            # Connector com limites
+            connector = aiohttp.TCPConnector(
+                limit=10,  # Max conexões simultâneas
+                limit_per_host=2,
+                ssl=ssl_context,
+                enable_cleanup_closed=True
+            )
+            
+            timeout = aiohttp.ClientTimeout(total=self.DEFAULT_TIMEOUT)
+            
+            self._session = aiohttp.ClientSession(
+                connector=connector,
+                timeout=timeout,
+                headers={"User-Agent": self.USER_AGENT}
+            )
+        
+        return self._session
+    
+    async def fetch(
+        self, 
+        url: str,
+        extract_text: bool = True,
+        follow_redirects: bool = True
+    ) -> FetchResult:
+        """
+        Busca conteúdo de URL de forma segura.
+        
+        Args:
+            url: URL para buscar
+            extract_text: Se True, extrai apenas texto (sem HTML)
+            follow_redirects: Se True, segue redirects (com limite)
+        
+        Returns:
+            FetchResult com conteúdo ou erro
+        """
+        start_time = datetime.now()
+        
+        # 1. Valida URL
+        is_valid, block_reason = self.validator.validate(url)
+        
+        if not is_valid:
+            logger.warning(f"URL blocked: {url} - {block_reason}")
+            return FetchResult(
+                success=False,
+                url=url,
+                content=None,
+                content_type="",
+                status_code=0,
+                blocked_reason=block_reason
+            )
+        
+        try:
+            session = await self._get_session()
+            
+            # 2. Faz requisição
+            async with session.get(
+                url,
+                allow_redirects=follow_redirects,
+                max_redirects=self.MAX_REDIRECTS
+            ) as response:
+                
+                # 3. Verifica status
+                if response.status >= 400:
+                    return FetchResult(
+                        success=False,
+                        url=url,
+                        content=None,
+                        content_type=response.content_type or "",
+                        status_code=response.status,
+                        error=f"HTTP {response.status}"
+                    )
+                
+                # 4. Verifica tamanho
+                content_length = response.content_length or 0
+                if content_length > self.MAX_RESPONSE_SIZE:
+                    return FetchResult(
+                        success=False,
+                        url=url,
+                        content=None,
+                        content_type=response.content_type or "",
+                        status_code=response.status,
+                        error=f"Response too large: {content_length} bytes"
+                    )
+                
+                # 5. Lê conteúdo
+                content = await response.text(errors='ignore')
+                
+                # 6. Sanitiza se HTML
+                if extract_text and 'html' in (response.content_type or '').lower():
+                    content = self.sanitizer.sanitize_html(content)
+                
+                fetch_time = int((datetime.now() - start_time).total_seconds() * 1000)
+                
+                return FetchResult(
+                    success=True,
+                    url=str(response.url),  # URL final após redirects
+                    content=content,
+                    content_type=response.content_type or "",
+                    status_code=response.status,
+                    fetch_time_ms=fetch_time
+                )
+                
+        except asyncio.TimeoutError:
+            return FetchResult(
+                success=False,
+                url=url,
+                content=None,
+                content_type="",
+                status_code=0,
+                error="Timeout"
+            )
+        except aiohttp.ClientError as e:
+            return FetchResult(
+                success=False,
+                url=url,
+                content=None,
+                content_type="",
+                status_code=0,
+                error=str(e)
+            )
+        except Exception as e:
+            logger.error(f"Fetch error for {url}: {e}")
+            return FetchResult(
+                success=False,
+                url=url,
+                content=None,
+                content_type="",
+                status_code=0,
+                error=str(e)
+            )
+    
+    async def fetch_json(self, url: str) -> Tuple[Optional[dict], Optional[str]]:
+        """Busca JSON de forma segura."""
+        result = await self.fetch(url, extract_text=False)
+        
+        if not result.success:
+            return None, result.error or result.blocked_reason
+        
+        try:
+            import json
+            data = json.loads(result.content)
+            return data, None
+        except:
+            return None, "Invalid JSON"
+    
+    async def search_web(
+        self, 
+        query: str, 
+        num_results: int = 5
+    ) -> List[Dict]:
+        """
+        Busca na web usando DuckDuckGo (privacidade).
+        Retorna lista de resultados.
+        """
+        # Usando DuckDuckGo Instant Answer API (gratuito)
+        search_url = f"https://api.duckduckgo.com/?q={query}&format=json&no_html=1"
+        
+        result = await self.fetch(search_url, extract_text=False)
+        
+        if not result.success:
+            return []
+        
+        try:
+            import json
+            data = json.loads(result.content)
+            
+            results = []
+            
+            # Abstract
+            if data.get('Abstract'):
+                results.append({
+                    'title': data.get('Heading', 'Result'),
+                    'snippet': data['Abstract'],
+                    'url': data.get('AbstractURL', ''),
+                    'source': data.get('AbstractSource', '')
+                })
+            
+            # Related topics
+            for topic in data.get('RelatedTopics', [])[:num_results]:
+                if isinstance(topic, dict) and topic.get('Text'):
+                    results.append({
+                        'title': topic.get('Text', '')[:100],
+                        'snippet': topic.get('Text', ''),
+                        'url': topic.get('FirstURL', ''),
+                        'source': 'DuckDuckGo'
+                    })
+            
+            return results[:num_results]
+            
+        except:
+            return []
+    
+    async def close(self):
+        """Fecha sessão HTTP."""
+        if self._session and not self._session.closed:
+            await self._session.close()
+
+
+# Função de conveniência para uso no assistente
+async def safe_web_search(query: str) -> str:
+    """
+    Busca segura na web - função para tools do agente.
+    """
+    fetcher = SafeWebFetcher()
+    
+    try:
+        results = await fetcher.search_web(query)
+        
+        if not results:
+            return "Não encontrei resultados para essa busca."
+        
+        response = f"Encontrei {len(results)} resultados:\n\n"
+        
+        for i, r in enumerate(results, 1):
+            response += f"{i}. **{r['title']}**\n"
+            response += f"   {r['snippet'][:200]}...\n"
+            if r['url']:
+                response += f"   Link: {r['url']}\n"
+            response += "\n"
+        
+        return response
+        
+    finally:
+        await fetcher.close()
+
+
+async def safe_fetch_page(url: str) -> str:
+    """
+    Busca página de forma segura - função para tools do agente.
+    """
+    fetcher = SafeWebFetcher()
+    
+    try:
+        result = await fetcher.fetch(url)
+        
+        if not result.success:
+            if result.blocked_reason:
+                return f"URL bloqueada por segurança: {result.blocked_reason}"
+            return f"Erro ao acessar página: {result.error}"
+        
+        # Limita conteúdo para resposta
+        content = result.content[:5000] if result.content else ""
+        
+        return f"Conteúdo de {result.url}:\n\n{content}"
+        
+    finally:
+        await fetcher.close()
+```
+
+### 6.3 Integração com Google Safe Browsing (Opcional)
+
+```python
+# Proposta: src/openclaw/web/safe_browsing.py
+
+import aiohttp
+import hashlib
+from typing import Optional, List
+import logging
+
+logger = logging.getLogger(__name__)
+
+class GoogleSafeBrowsing:
+    """
+    Integração com Google Safe Browsing API.
+    Requer API key (gratuita para uso não comercial).
+    
+    Referência: https://developers.google.com/safe-browsing
+    """
+    
+    API_URL = "https://safebrowsing.googleapis.com/v4/threatMatches:find"
+    
+    THREAT_TYPES = [
+        "MALWARE",
+        "SOCIAL_ENGINEERING",  # Phishing
+        "UNWANTED_SOFTWARE",
+        "POTENTIALLY_HARMFUL_APPLICATION"
+    ]
+    
+    def __init__(self, api_key: str = None):
+        self.api_key = api_key or os.getenv("GOOGLE_SAFE_BROWSING_API_KEY")
+        self._enabled = bool(self.api_key)
+        
+        if not self._enabled:
+            logger.warning("Safe Browsing API key not configured. Feature disabled.")
+    
+    async def check_url(self, url: str) -> tuple[bool, Optional[str]]:
+        """
+        Verifica URL contra base do Google.
+        
+        Returns:
+            (is_safe: bool, threat_type: Optional[str])
+        """
+        if not self._enabled:
+            return True, None  # Assume seguro se não configurado
+        
+        try:
+            payload = {
+                "client": {
+                    "clientId": "openclaw",
+                    "clientVersion": "1.0.0"
+                },
+                "threatInfo": {
+                    "threatTypes": self.THREAT_TYPES,
+                    "platformTypes": ["ANY_PLATFORM"],
+                    "threatEntryTypes": ["URL"],
+                    "threatEntries": [{"url": url}]
+                }
+            }
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    f"{self.API_URL}?key={self.api_key}",
+                    json=payload,
+                    timeout=aiohttp.ClientTimeout(total=5)
+                ) as response:
+                    
+                    if response.status != 200:
+                        logger.error(f"Safe Browsing API error: {response.status}")
+                        return True, None  # Assume seguro em caso de erro
+                    
+                    data = await response.json()
+                    
+                    matches = data.get("matches", [])
+                    
+                    if matches:
+                        threat_type = matches[0].get("threatType", "UNKNOWN")
+                        logger.warning(f"Threat detected for {url}: {threat_type}")
+                        return False, threat_type
+                    
+                    return True, None
+                    
+        except Exception as e:
+            logger.error(f"Safe Browsing check failed: {e}")
+            return True, None  # Assume seguro em caso de erro
+    
+    async def check_urls_batch(self, urls: List[str]) -> dict:
+        """Verifica múltiplas URLs de uma vez."""
+        results = {}
+        
+        for url in urls:
+            is_safe, threat = await self.check_url(url)
+            results[url] = {"safe": is_safe, "threat": threat}
+        
+        return results
+```
+
+---
+
+## 🛡️ PARTE 7: CHECKLIST DE SEGURANÇA
+
+### Checklist de Implementação
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    SECURITY IMPLEMENTATION CHECKLIST                │
+└─────────────────────────────────────────────────────────────────────┘
+
+📋 AUTENTICAÇÃO
+├── [ ] Voice biometrics implementado
+├── [ ] Session tokens com expiração
+├── [ ] Device fingerprinting
+└── [ ] Multi-factor opcional
+
+📋 AUTORIZAÇÃO
+├── [ ] Command whitelist ativo
+├── [ ] Command blacklist atualizado
+├── [ ] Rate limiting por usuário
+├── [ ] Rate limiting global
+└── [ ] Permission levels definidos
+
+📋 DADOS
+├── [ ] Encryption at rest (AES-256)
+├── [ ] Encryption in transit (TLS 1.3)
+├── [ ] Secure key storage (OS keychain)
+├── [ ] No sensitive data in logs
+└── [ ] Data minimization aplicado
+
+📋 WEB ACCESS
+├── [ ] URL validation ativo
+├── [ ] Blocklist atualizada
+├── [ ] Content sanitization
+├── [ ] Timeout configurado
+├── [ ] Size limits aplicados
+└── [ ] Safe Browsing integrado (opcional)
+
+📋 AUDITORIA
+├── [ ] Immutable logs configurados
+├── [ ] Hash chain verificável
+├── [ ] Alertas automáticos
+├── [ ] Retenção de logs definida
+└── [ ] Backup de logs
+
+📋 CÓDIGO
+├── [ ] Input sanitization em todas entradas
+├── [ ] No eval()/exec() usage
+├── [ ] Dependencies atualizadas
+├── [ ] Secrets em env vars (não hardcoded)
+└── [ ] Error handling sem info leak
+
+📋 INFRAESTRUTURA
+├── [ ] Process isolation
+├── [ ] Resource limits (CPU, RAM)
+├── [ ] Network isolation onde aplicável
+└── [ ] Graceful degradation
+```
+
+### Métricas de Segurança
+
+| Métrica | Target | Medição |
+|---------|--------|---------|
+| **Comandos bloqueados/dia** | < 5 legítimos | Audit logs |
+| **Tentativas de ataque** | 0 sucesso | Audit logs |
+| **URLs bloqueadas** | 100% maliciosas | Validator logs |
+| **Tempo de autenticação** | < 2s | Prometheus |
+| **Taxa de falsos positivos** | < 1% | User feedback |
+| **Cobertura de audit** | 100% ações | Log analysis |
 
 ---
 
