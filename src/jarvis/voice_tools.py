@@ -559,6 +559,473 @@ async def open_browser_search(query: str) -> str:
 
 
 # =============================================================================
+# FUNÇÕES DE ANÁLISE DE CÓDIGO (DELEGAÇÃO PARA CODEAGENT)
+# =============================================================================
+
+async def read_code_file(file_path: str, start_line: int = None, end_line: int = None) -> str:
+    """
+    Lê o conteúdo de um arquivo de código.
+    Esta ferramenta NÃO usa terminal - lê diretamente do sistema de arquivos.
+    
+    Use para: ver código, analisar scripts, verificar configurações.
+    
+    Args:
+        file_path: Caminho do arquivo (absoluto ou relativo ao projeto JARVIS)
+        start_line: Linha inicial (opcional, 1-indexed)
+        end_line: Linha final (opcional, 1-indexed)
+        
+    Returns:
+        Conteúdo do arquivo ou mensagem de erro
+    """
+    logger.info(f"📖 Lendo arquivo: {file_path}")
+    
+    try:
+        # Resolução de caminho
+        path = Path(file_path)
+        if not path.is_absolute():
+            # Tenta resolver relativo ao projeto JARVIS
+            project_root = Path(__file__).parent.parent.parent
+            path = project_root / file_path
+        
+        if not path.exists():
+            return f"Arquivo não encontrado: {file_path}. Verifique se o caminho está correto."
+        
+        if not path.is_file():
+            return f"'{file_path}' não é um arquivo válido."
+        
+        # Lê o arquivo
+        with open(path, 'r', encoding='utf-8', errors='replace') as f:
+            lines = f.readlines()
+        
+        # Aplica range de linhas se especificado
+        total_lines = len(lines)
+        if start_line is not None or end_line is not None:
+            start_idx = (start_line - 1) if start_line and start_line > 0 else 0
+            end_idx = end_line if end_line else total_lines
+            lines = lines[start_idx:end_idx]
+        
+        content = ''.join(lines)
+        
+        # Limita tamanho para resposta por voz
+        if len(content) > 3000:
+            content = content[:3000] + f"\n\n... (arquivo truncado - total: {total_lines} linhas)"
+        
+        return f"Conteúdo de {path.name} ({total_lines} linhas):\n\n{content}"
+        
+    except PermissionError:
+        return f"Sem permissão para ler o arquivo: {file_path}"
+    except Exception as e:
+        logger.error(f"Erro ao ler arquivo: {e}")
+        return f"Erro ao ler arquivo: {str(e)}"
+
+
+async def analyze_code_file(file_path: str, issue_description: str = "") -> str:
+    """
+    Analisa um arquivo de código e identifica problemas.
+    Esta ferramenta NÃO usa terminal - faz análise estática do código.
+    
+    Use para: encontrar erros, bugs, problemas de sintaxe, sugerir correções.
+    
+    Args:
+        file_path: Caminho do arquivo a analisar
+        issue_description: Descrição do problema (opcional - ajuda na análise)
+        
+    Returns:
+        Análise do código com problemas encontrados e sugestões
+    """
+    logger.info(f"🔍 Analisando código: {file_path}")
+    
+    try:
+        # Primeiro, lê o arquivo
+        path = Path(file_path)
+        if not path.is_absolute():
+            project_root = Path(__file__).parent.parent.parent
+            path = project_root / file_path
+        
+        if not path.exists():
+            return f"Arquivo não encontrado: {file_path}"
+        
+        with open(path, 'r', encoding='utf-8', errors='replace') as f:
+            content = f.read()
+            lines = content.splitlines()
+        
+        analysis_parts = [f"📋 Análise de {path.name}"]
+        problems = []
+        
+        # Detecta tipo de arquivo
+        suffix = path.suffix.lower()
+        
+        # Análise específica para Python
+        if suffix == '.py':
+            import ast
+            import py_compile
+            
+            # 1. Verifica erros de sintaxe
+            try:
+                ast.parse(content)
+                analysis_parts.append("✅ Sintaxe Python: OK")
+            except SyntaxError as e:
+                problems.append(f"❌ Erro de sintaxe na linha {e.lineno}: {e.msg}")
+                if e.lineno and e.lineno <= len(lines):
+                    problems.append(f"   Código: {lines[e.lineno - 1].strip()}")
+            
+            # 2. Análise de imports
+            try:
+                tree = ast.parse(content)
+                imports = []
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.Import):
+                        for alias in node.names:
+                            imports.append(alias.name)
+                    elif isinstance(node, ast.ImportFrom):
+                        imports.append(f"{node.module}")
+                
+                if imports:
+                    analysis_parts.append(f"📦 Imports: {', '.join(imports[:10])}")
+                    if len(imports) > 10:
+                        analysis_parts.append(f"   ... e mais {len(imports) - 10} imports")
+            except:
+                pass
+            
+            # 3. Análise de funções/classes
+            try:
+                tree = ast.parse(content)
+                functions = [node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
+                classes = [node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]
+                
+                if classes:
+                    analysis_parts.append(f"🏗️ Classes: {', '.join(classes)}")
+                if functions:
+                    analysis_parts.append(f"⚙️ Funções: {', '.join(functions[:10])}")
+                    if len(functions) > 10:
+                        analysis_parts.append(f"   ... e mais {len(functions) - 10} funções")
+            except:
+                pass
+            
+            # 4. Padrões problemáticos comuns
+            for i, line in enumerate(lines, 1):
+                line_stripped = line.strip()
+                
+                # except genérico
+                if line_stripped.startswith('except:') or line_stripped == 'except Exception:':
+                    problems.append(f"⚠️ Linha {i}: except genérico - considere capturar exceções específicas")
+                
+                # print debug
+                if line_stripped.startswith('print(') and 'debug' in line_stripped.lower():
+                    problems.append(f"⚠️ Linha {i}: possível print de debug")
+                
+                # TODO/FIXME
+                if 'TODO' in line or 'FIXME' in line:
+                    problems.append(f"📝 Linha {i}: {line_stripped[:60]}")
+        
+        # Análise para JavaScript/TypeScript
+        elif suffix in ['.js', '.ts', '.jsx', '.tsx']:
+            # Verifica padrões comuns
+            for i, line in enumerate(lines, 1):
+                if 'console.log' in line:
+                    problems.append(f"⚠️ Linha {i}: console.log encontrado")
+                if 'var ' in line:
+                    problems.append(f"⚠️ Linha {i}: uso de 'var' - prefira 'let' ou 'const'")
+        
+        # Estatísticas gerais
+        analysis_parts.append(f"\n📊 Estatísticas:")
+        analysis_parts.append(f"   - Total de linhas: {len(lines)}")
+        analysis_parts.append(f"   - Linhas em branco: {sum(1 for l in lines if not l.strip())}")
+        analysis_parts.append(f"   - Linhas de código: {sum(1 for l in lines if l.strip() and not l.strip().startswith('#'))}")
+        
+        # Problemas encontrados
+        if problems:
+            analysis_parts.append(f"\n🔴 Problemas encontrados ({len(problems)}):")
+            for p in problems[:10]:
+                analysis_parts.append(f"   {p}")
+            if len(problems) > 10:
+                analysis_parts.append(f"   ... e mais {len(problems) - 10} problemas")
+        else:
+            analysis_parts.append("\n✅ Nenhum problema óbvio encontrado")
+        
+        # Se foi passada descrição do problema, adiciona contexto
+        if issue_description:
+            analysis_parts.append(f"\n🎯 Sobre o problema reportado: '{issue_description}'")
+            analysis_parts.append("   Recomendo verificar as linhas relacionadas ao erro mencionado.")
+        
+        return "\n".join(analysis_parts)
+        
+    except Exception as e:
+        logger.error(f"Erro na análise: {e}")
+        return f"Erro ao analisar arquivo: {str(e)}"
+
+
+async def list_project_files(folder_path: str = "", pattern: str = "*.py") -> str:
+    """
+    Lista arquivos de um diretório do projeto.
+    Esta ferramenta NÃO usa terminal - lê diretamente do sistema de arquivos.
+    
+    Use para: ver estrutura do projeto, encontrar arquivos.
+    
+    Args:
+        folder_path: Caminho da pasta (vazio = raiz do projeto)
+        pattern: Padrão de arquivos (ex: "*.py", "*.js", "*")
+        
+    Returns:
+        Lista de arquivos encontrados
+    """
+    logger.info(f"📂 Listando arquivos: {folder_path or 'projeto'}")
+    
+    try:
+        project_root = Path(__file__).parent.parent.parent
+        
+        if folder_path:
+            path = Path(folder_path)
+            if not path.is_absolute():
+                path = project_root / folder_path
+        else:
+            path = project_root
+        
+        if not path.exists():
+            return f"Pasta não encontrada: {folder_path}"
+        
+        if not path.is_dir():
+            return f"'{folder_path}' não é uma pasta válida"
+        
+        # Lista arquivos com o padrão
+        files = list(path.glob(pattern))
+        
+        # Também lista subpastas
+        folders = [f for f in path.iterdir() if f.is_dir() and not f.name.startswith('.') and f.name not in ['__pycache__', 'venv', 'node_modules', '.git']]
+        
+        result_parts = [f"📁 Conteúdo de {path.name}/"]
+        
+        if folders:
+            result_parts.append(f"\n📂 Pastas ({len(folders)}):")
+            for f in sorted(folders)[:15]:
+                result_parts.append(f"   📁 {f.name}/")
+            if len(folders) > 15:
+                result_parts.append(f"   ... e mais {len(folders) - 15} pastas")
+        
+        if files:
+            result_parts.append(f"\n📄 Arquivos '{pattern}' ({len(files)}):")
+            for f in sorted(files)[:20]:
+                size = f.stat().st_size
+                size_str = f"{size}B" if size < 1024 else f"{size/1024:.1f}KB"
+                result_parts.append(f"   📄 {f.name} ({size_str})")
+            if len(files) > 20:
+                result_parts.append(f"   ... e mais {len(files) - 20} arquivos")
+        
+        if not folders and not files:
+            result_parts.append("   (pasta vazia ou sem arquivos correspondentes)")
+        
+        return "\n".join(result_parts)
+        
+    except Exception as e:
+        logger.error(f"Erro ao listar: {e}")
+        return f"Erro ao listar arquivos: {str(e)}"
+
+
+async def write_code_file(file_path: str, content: str, create_dirs: bool = True) -> str:
+    """
+    Cria ou sobrescreve um arquivo com o conteúdo especificado.
+    Esta ferramenta NÃO usa terminal - escreve diretamente no sistema de arquivos.
+    
+    Use para: criar arquivos .md, .py, .txt, configs, salvar código refatorado.
+    
+    Args:
+        file_path: Caminho do arquivo (absoluto ou relativo ao projeto)
+        content: Conteúdo completo a ser escrito no arquivo
+        create_dirs: Se True, cria os diretórios pais se não existirem
+        
+    Returns:
+        Mensagem de confirmação ou erro
+    """
+    logger.info(f"📝 Escrevendo arquivo: {file_path}")
+    
+    try:
+        path = Path(file_path)
+        if not path.is_absolute():
+            project_root = Path(__file__).parent.parent.parent
+            path = project_root / file_path
+        
+        # Cria diretórios pais se necessário
+        if create_dirs:
+            path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Escreve o arquivo
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        
+        file_size = path.stat().st_size
+        size_str = f"{file_size}B" if file_size < 1024 else f"{file_size/1024:.1f}KB"
+        
+        return f"✅ Arquivo '{path.name}' salvo com sucesso ({size_str}, {len(content.splitlines())} linhas)"
+        
+    except PermissionError:
+        return f"❌ Sem permissão para escrever em: {file_path}"
+    except Exception as e:
+        logger.error(f"Erro ao escrever arquivo: {e}")
+        return f"❌ Erro ao escrever arquivo: {str(e)}"
+
+
+async def append_to_file(file_path: str, content: str) -> str:
+    """
+    Adiciona conteúdo ao final de um arquivo existente.
+    Esta ferramenta NÃO usa terminal.
+    
+    Use para: adicionar notas, logs, conteúdo extra sem sobrescrever.
+    
+    Args:
+        file_path: Caminho do arquivo
+        content: Conteúdo a adicionar ao final
+        
+    Returns:
+        Mensagem de confirmação ou erro
+    """
+    logger.info(f"📎 Adicionando conteúdo a: {file_path}")
+    
+    try:
+        path = Path(file_path)
+        if not path.is_absolute():
+            project_root = Path(__file__).parent.parent.parent
+            path = project_root / file_path
+        
+        if not path.exists():
+            return f"❌ Arquivo não encontrado: {file_path}. Use write_code_file para criar."
+        
+        with open(path, 'a', encoding='utf-8') as f:
+            f.write(content)
+        
+        return f"✅ Conteúdo adicionado a '{path.name}'"
+        
+    except Exception as e:
+        logger.error(f"Erro ao adicionar conteúdo: {e}")
+        return f"❌ Erro: {str(e)}"
+
+
+async def refactor_code(file_path: str, old_code: str, new_code: str) -> str:
+    """
+    Substitui um trecho de código por outro em um arquivo.
+    Esta ferramenta NÃO usa terminal - edita diretamente o arquivo.
+    
+    Use para: corrigir erros, refatorar funções, atualizar código.
+    
+    Args:
+        file_path: Caminho do arquivo a editar
+        old_code: Código exato a ser substituído (deve existir no arquivo)
+        new_code: Novo código que substituirá o antigo
+        
+    Returns:
+        Mensagem de confirmação ou erro
+    """
+    logger.info(f"🔧 Refatorando código em: {file_path}")
+    
+    try:
+        path = Path(file_path)
+        if not path.is_absolute():
+            project_root = Path(__file__).parent.parent.parent
+            path = project_root / file_path
+        
+        if not path.exists():
+            return f"❌ Arquivo não encontrado: {file_path}"
+        
+        # Lê o arquivo
+        with open(path, 'r', encoding='utf-8', errors='replace') as f:
+            content = f.read()
+        
+        # Verifica se o código antigo existe
+        if old_code not in content:
+            # Tenta encontrar algo similar
+            old_lines = old_code.strip().splitlines()
+            if old_lines:
+                first_line = old_lines[0].strip()
+                if first_line in content:
+                    return f"❌ Código não encontrado exatamente. Encontrei linha similar: '{first_line[:50]}...'. Verifique espaços/indentação."
+            return f"❌ Código a substituir não encontrado no arquivo. Verifique se copiou exatamente."
+        
+        # Conta ocorrências
+        occurrences = content.count(old_code)
+        if occurrences > 1:
+            return f"⚠️ Encontrei {occurrences} ocorrências do código. Seja mais específico para evitar substituições erradas."
+        
+        # Substitui
+        new_content = content.replace(old_code, new_code, 1)
+        
+        # Escreve de volta
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(new_content)
+        
+        lines_removed = len(old_code.splitlines())
+        lines_added = len(new_code.splitlines())
+        
+        return f"✅ Código refatorado em '{path.name}' (-{lines_removed} +{lines_added} linhas)"
+        
+    except Exception as e:
+        logger.error(f"Erro na refatoração: {e}")
+        return f"❌ Erro na refatoração: {str(e)}"
+
+
+async def create_markdown_doc(file_path: str, title: str, content: str, add_toc: bool = False) -> str:
+    """
+    Cria um documento Markdown formatado.
+    Esta ferramenta NÃO usa terminal.
+    
+    Use para: criar documentação, READMEs, guias, notas.
+    
+    Args:
+        file_path: Caminho do arquivo .md a criar
+        title: Título principal do documento
+        content: Conteúdo do documento (pode incluir markdown)
+        add_toc: Se True, adiciona índice automático
+        
+    Returns:
+        Mensagem de confirmação
+    """
+    logger.info(f"📄 Criando documento MD: {file_path}")
+    
+    try:
+        path = Path(file_path)
+        if not path.is_absolute():
+            project_root = Path(__file__).parent.parent.parent
+            path = project_root / file_path
+        
+        # Garante extensão .md
+        if path.suffix.lower() != '.md':
+            path = path.with_suffix('.md')
+        
+        # Cria diretórios se necessário
+        path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Monta o documento
+        doc_parts = [f"# {title}\n"]
+        
+        # Adiciona metadata
+        from datetime import datetime
+        doc_parts.append(f"> Criado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}\n")
+        
+        # Adiciona TOC se solicitado
+        if add_toc:
+            doc_parts.append("## 📋 Índice\n")
+            # Extrai headers do conteúdo
+            for line in content.splitlines():
+                if line.startswith('## '):
+                    header = line[3:].strip()
+                    anchor = header.lower().replace(' ', '-').replace(':', '')
+                    doc_parts.append(f"- [{header}](#{anchor})")
+            doc_parts.append("\n---\n")
+        
+        # Adiciona conteúdo
+        doc_parts.append(content)
+        
+        # Escreve arquivo
+        full_content = "\n".join(doc_parts)
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(full_content)
+        
+        return f"✅ Documento '{path.name}' criado com sucesso ({len(content.splitlines())} linhas)"
+        
+    except Exception as e:
+        logger.error(f"Erro ao criar documento: {e}")
+        return f"❌ Erro ao criar documento: {str(e)}"
+
+
+# =============================================================================
 # REGISTRO DE FERRAMENTAS PARA LIVEKIT
 # =============================================================================
 
@@ -584,6 +1051,15 @@ def get_voice_tools():
         "run_terminal_command": run_terminal_command,
         "search_web_info": search_web_info,
         "open_browser_search": open_browser_search,
+        # Ferramentas de análise de código
+        "read_code_file": read_code_file,
+        "analyze_code_file": analyze_code_file,
+        "list_project_files": list_project_files,
+        # Ferramentas de escrita/edição de arquivos
+        "write_code_file": write_code_file,
+        "append_to_file": append_to_file,
+        "refactor_code": refactor_code,
+        "create_markdown_doc": create_markdown_doc,
     }
 
 

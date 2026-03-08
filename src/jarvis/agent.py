@@ -18,7 +18,16 @@ from .voice_tools import (
     get_system_info as _get_system_info, 
     run_terminal_command as _run_terminal_command,
     search_web_info as _search_web_info,
-    open_browser_search as _open_browser_search
+    open_browser_search as _open_browser_search,
+    # Ferramentas de análise de código
+    read_code_file as _read_code_file,
+    analyze_code_file as _analyze_code_file,
+    list_project_files as _list_project_files,
+    # Ferramentas de escrita/edição de arquivos
+    write_code_file as _write_code_file,
+    append_to_file as _append_to_file,
+    refactor_code as _refactor_code,
+    create_markdown_doc as _create_markdown_doc
 )
 from mem0 import AsyncMemoryClient
 import logging
@@ -230,6 +239,129 @@ async def tool_open_browser_search(query: str) -> str:
     return await _open_browser_search(query)
 
 
+# ============================================================================
+# FERRAMENTAS DE ANÁLISE DE CÓDIGO (lê arquivos diretamente, SEM terminal)
+# ============================================================================
+
+@function_tool(
+    name="read_code_file",
+    description="Lê o conteúdo de um arquivo de código. NÃO usa terminal - lê diretamente do sistema de arquivos. Use para: ver código, analisar scripts, verificar configurações, ler qualquer arquivo de texto."
+)
+async def tool_read_code_file(file_path: str, start_line: int = None, end_line: int = None) -> str:
+    """
+    Lê conteúdo de arquivo.
+    
+    Args:
+        file_path: Caminho do arquivo
+        start_line: Linha inicial (opcional)
+        end_line: Linha final (opcional)
+    """
+    logger.info(f"📖 Lendo arquivo: {file_path}")
+    return await _read_code_file(file_path, start_line, end_line)
+
+
+@function_tool(
+    name="analyze_code_file",
+    description="Analisa um arquivo de código e identifica problemas (erros de sintaxe, bugs, padrões problemáticos). NÃO usa terminal - faz análise estática. Use quando pedirem para verificar/corrigir/analisar código."
+)
+async def tool_analyze_code_file(file_path: str, issue_description: str = "") -> str:
+    """
+    Analisa código e encontra problemas.
+    
+    Args:
+        file_path: Caminho do arquivo a analisar
+        issue_description: Descrição do problema (opcional, ajuda na análise)
+    """
+    logger.info(f"🔍 Analisando código: {file_path}")
+    return await _analyze_code_file(file_path, issue_description)
+
+
+@function_tool(
+    name="list_project_files",
+    description="Lista arquivos de um diretório do projeto. NÃO usa terminal - lê diretamente. Use para: ver estrutura do projeto, encontrar arquivos."
+)
+async def tool_list_project_files(folder_path: str = "", pattern: str = "*.py") -> str:
+    """
+    Lista arquivos de uma pasta.
+    
+    Args:
+        folder_path: Caminho da pasta (vazio = raiz do projeto)
+        pattern: Padrão de arquivos (ex: *.py, *.js)
+    """
+    logger.info(f"📂 Listando: {folder_path or 'projeto'}")
+    return await _list_project_files(folder_path, pattern)
+
+
+# ============================================================================
+# FERRAMENTAS DE ESCRITA/EDIÇÃO DE ARQUIVOS (NÃO usam terminal)
+# ============================================================================
+
+@function_tool(
+    name="write_code_file",
+    description="Cria ou sobrescreve um arquivo com conteúdo. NÃO usa terminal. Use para: criar arquivos .py, .md, .txt, configs, salvar código novo ou refatorado."
+)
+async def tool_write_code_file(file_path: str, content: str) -> str:
+    """
+    Cria ou sobrescreve um arquivo.
+    
+    Args:
+        file_path: Caminho do arquivo
+        content: Conteúdo completo a escrever
+    """
+    logger.info(f"📝 Escrevendo arquivo: {file_path}")
+    return await _write_code_file(file_path, content)
+
+
+@function_tool(
+    name="append_to_file",
+    description="Adiciona conteúdo ao final de um arquivo existente. NÃO usa terminal. Use para: adicionar notas, logs, conteúdo extra."
+)
+async def tool_append_to_file(file_path: str, content: str) -> str:
+    """
+    Adiciona conteúdo ao final de um arquivo.
+    
+    Args:
+        file_path: Caminho do arquivo
+        content: Conteúdo a adicionar
+    """
+    logger.info(f"📎 Adicionando a: {file_path}")
+    return await _append_to_file(file_path, content)
+
+
+@function_tool(
+    name="refactor_code",
+    description="Substitui um trecho de código por outro em um arquivo. NÃO usa terminal. Use para: corrigir erros, refatorar funções, atualizar código específico."
+)
+async def tool_refactor_code(file_path: str, old_code: str, new_code: str) -> str:
+    """
+    Substitui código em um arquivo.
+    
+    Args:
+        file_path: Caminho do arquivo
+        old_code: Código exato a substituir
+        new_code: Novo código
+    """
+    logger.info(f"🔧 Refatorando: {file_path}")
+    return await _refactor_code(file_path, old_code, new_code)
+
+
+@function_tool(
+    name="create_markdown_doc",
+    description="Cria um documento Markdown formatado. NÃO usa terminal. Use para: criar documentação, READMEs, guias, notas em .md."
+)
+async def tool_create_markdown_doc(file_path: str, title: str, content: str) -> str:
+    """
+    Cria documento Markdown.
+    
+    Args:
+        file_path: Caminho do arquivo .md
+        title: Título do documento
+        content: Conteúdo markdown
+    """
+    logger.info(f"📄 Criando MD: {file_path}")
+    return await _create_markdown_doc(file_path, title, content)
+
+
 # Lista de todas as ferramentas disponíveis para o agente
 JARVIS_TOOLS = [
     tool_open_application,
@@ -247,6 +379,15 @@ JARVIS_TOOLS = [
     tool_run_terminal_command,
     tool_search_web_info,
     tool_open_browser_search,
+    # Ferramentas de análise de código
+    tool_read_code_file,
+    tool_analyze_code_file,
+    tool_list_project_files,
+    # Ferramentas de escrita/edição
+    tool_write_code_file,
+    tool_append_to_file,
+    tool_refactor_code,
+    tool_create_markdown_doc,
 ]
 
 
