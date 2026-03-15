@@ -20,7 +20,7 @@ jobs:
     
     steps:
       - name: 📥 Baixar código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
       - name: 🐍 Configurar Python
         uses: actions/setup-python@v5
@@ -43,7 +43,7 @@ jobs:
     
     steps:
       - name: 📥 Baixar código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
       - name: 🐍 Configurar Python
         uses: actions/setup-python@v5
@@ -62,7 +62,7 @@ jobs:
     
     steps:
       - name: 📥 Baixar código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
       - name: 🔐 Verificar se .env foi commitado acidentalmente
         run: |
@@ -88,7 +88,7 @@ jobs:
     
     steps:
       - name: 📥 Baixar código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
       - name: 🐍 Configurar Python
         uses: actions/setup-python@v5
