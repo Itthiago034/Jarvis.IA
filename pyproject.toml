@@ -21,7 +21,7 @@ dependencies = [
     # Memória
     "mem0ai>=0.1.0",
     # Google ADK
-    "google-adk>=1.26.0",
+    "google-adk>=1.29.0",
     "mcp>=1.0.0",
     # CLI
     "typer>=0.12.0",
